@@ -18,7 +18,10 @@ import json
 import time
 from typing import Dict, Any, List, Optional, Tuple
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "data", "respirasense.db")
+if os.environ.get("VERCEL"):
+    DB_PATH = "/tmp/respirasense.db"
+else:
+    DB_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "data", "respirasense.db")
 
 
 def get_db_connection() -> sqlite3.Connection:

@@ -36,7 +36,10 @@ from reportlab.platypus import (
 from src.storage.db import get_db_connection
 from src.baseline.baseline_manager import compute_seven_day_baseline, get_patient_history_summary
 
-REPORTS_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "reports")
+if os.environ.get("VERCEL"):
+    REPORTS_DIR = "/tmp/data/reports"
+else:
+    REPORTS_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "reports")
 
 
 def generate_patient_pdf_report(

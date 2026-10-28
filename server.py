@@ -960,6 +960,8 @@ class RespiraSenseHandler(http.server.BaseHTTPRequestHandler):
                 self.send_response(404)
                 self.end_headers()
 
+handler = RespiraSenseHandler
+
 def run_server():
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", PORT), RespiraSenseHandler) as httpd:

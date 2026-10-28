@@ -31,7 +31,10 @@ from typing import Dict, Any, Optional, List
 from src.storage.db import get_db_connection
 from src.reports.pdf_generator import generate_patient_pdf_report
 
-EXPORTS_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "exports")
+if os.environ.get("VERCEL"):
+    EXPORTS_DIR = "/tmp/data/exports"
+else:
+    EXPORTS_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data", "exports")
 
 
 def prepare_hospital_export(
