@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-clinical-bg text-clinical-text font-sans antialiased;
+  }
+
+  /* Custom subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #F1F5F9;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
+  }
+}
+
+/* Glassmorphism and Clinical Cards */
+.clinical-card {
+  @apply bg-white border border-clinical-border rounded-xl shadow-sm transition-all;
+}
+
+.clinical-card-hover {
+  @apply hover:shadow-md hover:border-teal-500/30;
+}
+
+.dark-workspace-card {
+  @apply bg-[#0F2033] border border-[#1A334F] rounded-xl text-slate-100 shadow-lg;
+}
+
+/* Status Badges */
+.badge-reliable {
+  @apply bg-emerald-50 text-emerald-700 border border-emerald-200;
+}
+
+.badge-degraded {
+  @apply bg-amber-50 text-amber-700 border border-amber-200;
+}
+
+.badge-rejected {
+  @apply bg-rose-50 text-rose-700 border border-rose-200;
+}
