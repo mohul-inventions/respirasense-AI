@@ -20,7 +20,8 @@ import {
   FileCheck,
   Building,
   Info,
-  ChevronDown
+  ChevronDown,
+  Sparkles
 } from 'lucide-react';
 
 interface ClinicalPortalProps {
@@ -739,6 +740,14 @@ export const ClinicalPortal: React.FC<ClinicalPortalProps> = ({
                   </div>
 
                   <div className="flex flex-wrap gap-3">
+                    <button
+                      onClick={() => handleGenerateReport('SAMPLE_DEMO')}
+                      disabled={generatingReport}
+                      className="px-4 py-2.5 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 rounded-lg text-xs font-black transition flex items-center gap-2 shadow-md shadow-teal-500/20"
+                    >
+                      <Sparkles className="w-4 h-4 text-slate-950" />
+                      {generatingReport ? 'Generating PDF...' : 'Generate 4-Page Sample Demo Report (PDF)'}
+                    </button>
                     <button
                       onClick={() => handleGenerateReport('SEVEN_DAY_BASELINE')}
                       disabled={generatingReport}

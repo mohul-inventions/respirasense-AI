@@ -40,6 +40,7 @@ from src.baseline.baseline_manager import (
     approve_threshold_configuration, get_patient_history_summary
 )
 from src.reports.pdf_generator import generate_patient_pdf_report
+from src.reports.sample_report_generator import generate_sample_pdf_report
 from src.export.hospital_export import (
     prepare_hospital_export, authorize_and_transmit_export, request_emergency_access
 )
@@ -402,6 +403,25 @@ class RespiraSenseHandler(http.server.BaseHTTPRequestHandler):
             days_req = int(params.get("days", [30])[0])
             summary = get_patient_history_summary(pid, days=days_req)
             self._send_json(summary, 200)
+
+        elif parsed.path == "/api/reports/sample":
+            download_req = params.get("download", ["0"])[0] in ("1", "true", "yes")
+            try:
+                rep_meta = generate_sample_pdf_report()
+                if download_req:
+                    with open(rep_meta["file_path"], "rb") as f:
+                        pdf_data = f.read()
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/pdf")
+                    self.send_header("Content-Disposition", f'attachment; filename="{rep_meta["filename"]}"')
+                    self._send_cors()
+                    self.end_headers()
+                    self.wfile.write(pdf_data)
+                else:
+                    rep_meta["download_url"] = f"/api/reports/download?report_id={rep_meta['report_id']}"
+                    self._send_json(rep_meta, 200)
+            except Exception as e:
+                self._send_json({"error": str(e)}, 500)
 
         elif parsed.path == "/api/reports/download":
             sess = self._get_auth_session(params)
@@ -823,6 +843,21 @@ class RespiraSenseHandler(http.server.BaseHTTPRequestHandler):
             body = self.rfile.read(content_len).decode("utf-8")
             data = json.loads(body) if body else {}
             sess = self._get_auth_session()
+            rtype = data.get("report_type", "SEVEN_DAY_BASELINE")
+
+            if rtype in ("SAMPLE_DEMO", "SAMPLE", "DEMO"):
+                try:
+                    res = generate_sample_pdf_report(
+                        patient_id=data.get("patient_id", "DEMO-001"),
+                        patient_name=data.get("patient_name", "Demo Patient"),
+                        is_synthetic=True
+                    )
+                    res["download_url"] = f"/api/reports/download?report_id={res['report_id']}"
+                    self._send_json(res, 200)
+                except Exception as e:
+                    self._send_json({"error": str(e)}, 500)
+                return
+
             pid = data.get("patient_id") or (sess.get("patient_id") if sess else None)
             if not pid:
                 self._send_json({"error": "Patient ID required"}, 400)
@@ -836,9 +871,10 @@ class RespiraSenseHandler(http.server.BaseHTTPRequestHandler):
             try:
                 res = generate_patient_pdf_report(
                     patient_id=pid,
-                    report_type=data.get("report_type", "SEVEN_DAY_BASELINE"),
+                    report_type=rtype,
                     clinician_notes=data.get("clinician_notes")
                 )
+                res["download_url"] = f"/api/reports/download?report_id={res['report_id']}"
                 self._send_json(res, 200)
             except Exception as e:
                 self._send_json({"error": str(e)}, 500)

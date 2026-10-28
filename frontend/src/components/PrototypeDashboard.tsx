@@ -832,6 +832,18 @@ export const PrototypeDashboard: React.FC = () => {
               {isStreaming ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
             </button>
 
+            {/* Quick Sample PDF Report Download Button */}
+            <a
+              href="/api/reports/sample?download=1"
+              target="_blank"
+              rel="noreferrer"
+              className="px-3 py-1.5 rounded-xl border border-teal-500/80 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 text-xs font-black flex items-center gap-1.5 transition-all shadow-md shadow-teal-500/10"
+              title="Download 4-Page Hospital-Grade Sample Demonstration Report (PDF)"
+            >
+              <FileText className="w-3.5 h-3.5 text-slate-950 stroke-[2.5]" />
+              <span>Sample PDF Report</span>
+            </a>
+
             {/* External Links */}
             <a
               href="http://localhost:8501"

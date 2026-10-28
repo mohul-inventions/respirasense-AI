@@ -22,6 +22,7 @@ from src.baseline.baseline_manager import (
     approve_threshold_configuration, get_patient_history_summary
 )
 from src.reports.pdf_generator import generate_patient_pdf_report
+from src.reports.sample_report_generator import generate_sample_pdf_report
 from src.export.hospital_export import (
     prepare_hospital_export, authorize_and_transmit_export, request_emergency_access
 )
@@ -402,6 +403,56 @@ class TestPatientPlatform(unittest.TestCase):
         self.assertFalse(res["is_positive_diagnosis"])
         self.assertIn("exploratory research", res["clinical_disclaimer"].lower())
 
+
+    # ─────────────────────────────────────────────────────────────
+    # 7. SAMPLE BIOMEDICAL PDF REPORT GENERATION TESTS
+    # ─────────────────────────────────────────────────────────────
+
+    def test_sample_pdf_report_generation_4_pages(self):
+        result = generate_sample_pdf_report(
+            patient_id="DEMO-001",
+            patient_name="Demo Patient",
+            is_synthetic=True
+        )
+        self.assertTrue(result["success"])
+        self.assertEqual(result["patient_id"], "DEMO-001")
+        self.assertEqual(result["page_count"], 4)
+        self.assertTrue(result["is_synthetic"])
+        self.assertTrue(os.path.exists(result["file_path"]))
+        self.assertGreater(result["file_size_bytes"], 50000)
+        self.assertIsNotNone(result["checksum_sha256"])
+        self.assertEqual(len(result["checksum_sha256"]), 64)
+
+    def test_sample_pdf_report_content_and_database_record(self):
+        result = generate_sample_pdf_report(
+            patient_id="DEMO-001",
+            patient_name="Demo Patient",
+            is_synthetic=True,
+            telemetry_summary={
+                "median_rr": 15.5,
+                "mean_sqi": 0.88,
+                "dynamic_rms": 0.04,
+                "motion_state": "STATIONARY_RESTING"
+            }
+        )
+        self.assertTrue(result["success"])
+        
+        # Verify valid PDF structure and footer on disk
+        with open(result["file_path"], "rb") as f:
+            pdf_bytes = f.read()
+            self.assertTrue(pdf_bytes.startswith(b"%PDF-"))
+            self.assertTrue(pdf_bytes.rstrip().endswith(b"%%EOF"))
+            self.assertIn(b"ReportLab Generated PDF document", pdf_bytes)
+        
+        # Verify entry in generated_reports table
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM generated_reports WHERE report_id = ?", (result["report_id"],))
+        row = cur.fetchone()
+        conn.close()
+        self.assertIsNotNone(row)
+        self.assertEqual(row["patient_id"], "DEMO-001")
+        self.assertEqual(row["report_type"], "SAMPLE_DEMONSTRATION")
 
 if __name__ == "__main__":
     unittest.main()
