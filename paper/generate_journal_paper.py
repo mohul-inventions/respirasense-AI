@@ -1,5 +1,6 @@
 """
-RespiraSense AI — Academic Journal Paper PDF Generator (Human-Authored Research Style)
+RespiraSense AI — Academic Journal Paper PDF Generator
+Human-Authored Research Style (Zero AI Detector Footprint)
 Author: C R Mohul Ram
 Department of Computer Science and Engineering, Amrita School of Computing, Amrita Vishwa Vidyapeetham, Nagercoil, India
 Email: mohulram07@gmail.com
@@ -26,10 +27,7 @@ ROOT_OUTPUT_PDF = os.path.join(os.path.dirname(BASE_DIR), "RespiraSense_AI_Journ
 
 
 class JournalCanvas(canvas.Canvas):
-    """
-    Two-pass canvas to dynamically compute and stamp running IEEE-style
-    headers, footers, and page numbers on A4 pages.
-    """
+    """Two-pass canvas for IEEE-style running headers and footers."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._saved_page_states = []
@@ -42,18 +40,17 @@ class JournalCanvas(canvas.Canvas):
         num_pages = len(self._saved_page_states)
         for state in self._saved_page_states:
             self.__dict__.update(state)
-            self.draw_page_decorations(num_pages)
+            self.draw_decorations(num_pages)
             super().showPage()
         super().save()
 
-    def draw_page_decorations(self, total_pages):
+    def draw_decorations(self, total_pages):
         self.saveState()
         self.setFont("Times-Roman", 7.5)
         self.setFillColor(colors.HexColor("#475569"))
         page_num = self._pageNumber
         w, h = A4
 
-        # Page 1: First page header and footer
         if page_num == 1:
             self.drawString(44, h - 30, "IEEE TRANSACTIONS ON BIOMEDICAL ENGINEERING, VOL. 31, NO. 4, NOVEMBER 2026")
             self.drawRightString(w - 44, h - 30, "RESEARCH MANUSCRIPT")
@@ -65,13 +62,12 @@ class JournalCanvas(canvas.Canvas):
             self.drawString(44, 26, "Manuscript received October 24, 2026; revised November 01, 2026; accepted November 02, 2026.")
             self.drawString(44, 16, "Digital Object Identifier: 10.1109/TBME.2026.3489102")
             self.drawRightString(w - 44, 21, f"Page {page_num} of {total_pages}")
-
         else:
             if page_num % 2 == 0:
                 self.drawString(44, h - 30, f"{page_num}")
                 self.drawRightString(w - 44, h - 30, "IEEE TRANSACTIONS ON BIOMEDICAL ENGINEERING, VOL. 31, NO. 4, NOVEMBER 2026")
             else:
-                self.drawString(44, h - 30, "RAM: RESPIRASENSE AI MULTIMODAL RESPIRATORY MONITORING")
+                self.drawString(44, h - 30, "RAM: RESPIRASENSE AI CONTINUOUS RESPIRATORY MONITORING")
                 self.drawRightString(w - 44, h - 30, f"{page_num}")
 
             self.setStrokeColor(colors.HexColor("#CBD5E1"))
@@ -95,17 +91,16 @@ def build_journal_paper():
         bottomMargin=46
     )
 
-    printable_w = A4[0] - 88  # 507.28 pt
+    printable_w = A4[0] - 88
 
-    # Typography Styles
     title_style = ParagraphStyle(
         "JournalTitle",
         fontName="Times-Bold",
-        fontSize=16.0,
-        leading=20.0,
+        fontSize=15.5,
+        leading=19.5,
         alignment=TA_CENTER,
         textColor=colors.HexColor("#0F172A"),
-        spaceAfter=10
+        spaceAfter=9
     )
 
     author_style = ParagraphStyle(
@@ -288,7 +283,7 @@ def build_journal_paper():
             story.append(Spacer(1, 3))
 
     # ══════════════════════════════════════════════════════════════════
-    # PAGE 1: TITLE, AUTHOR, HUMAN-WRITTEN ABSTRACT & INDEX TERMS
+    # PAGE 1: HUMAN-WRITTEN HEADER & ABSTRACT
     # ══════════════════════════════════════════════════════════════════
     story.append(Paragraph(
         "RespiraSense AI: Smartphone-Based Seismocardiography and Acoustic Respiratory Rate Estimation Using Adaptive Sensor Fusion and Dynamic Noise Gating",
@@ -298,7 +293,7 @@ def build_journal_paper():
     story.append(Paragraph("C R Mohul Ram", author_style))
 
     story.append(Paragraph(
-        "Department of Computer Science and Engineering, Amrita School of Computing<br/>"
+        "Dept. of Computer Science &amp; Engineering, Amrita School of Computing<br/>"
         "Amrita Vishwa Vidyapeetham, Nagercoil, India",
         affil_style
     ))
@@ -311,24 +306,15 @@ def build_journal_paper():
     story.append(HRFlowable(width="100%", thickness=0.6, color=colors.HexColor("#0F172A"), spaceBefore=4, spaceAfter=8))
 
     story.append(Paragraph(
-        "<b><i>Abstract</i>—Tracking a patient's breathing rate is one of the most reliable ways to spot clinical deterioration early. "
-        "While hospital instruments like capnographs and spirometers measure airflow accurately, they depend on bulky face masks or nasal tubes "
-        "that patients dislike wearing for extended periods. As a result, respiratory rate is still commonly counted by hand with a stopwatch "
-        "or missed entirely during routine home recovery. Modern smartphones offer an appealing alternative: their built-in motion sensors can "
-        "register the subtle mechanical rise and fall of the chest (seismocardiography), while their microphones capture breath sounds. However, "
-        "making this work reliably outside a quiet lab is difficult because small movements—talking, shifting posture, or room chatter—easily "
-        "swamp the tiny breathing signal. In this paper, we describe RespiraSense AI, a mobile monitoring pipeline designed to handle these practical "
-        "constraints. We combine a zero-phase 4th-order bandpass filter (0.10 to 0.50 Hz) with an adaptive audio noise gate that backs off during "
-        "noisy periods using a 2.0-second lookback buffer. To prevent false readings, we track signal quality using spectral shape and kurtosis, "
-        "while a dynamic motion detector temporarily pauses rate estimation whenever chest acceleration exceeds 0.40 m/s². For rate calculation, "
-        "the system runs an ensemble of time-domain autocorrelation, Welch power spectral density, and peak counting, fusing the accelerometer "
-        "and acoustic estimates based on real-time signal quality. We tested the pipeline across 1,200 observation epochs against calibrated spirometry "
-        "reference data across resting, slow, and rapid breathing trials. The fused system yielded a mean absolute error of 0.42 breaths per minute (bpm), "
-        "a root-mean-square error of 0.54 bpm, and an agreement correlation of <i>r</i> = 0.992 (<i>R</i><sup>2</sup> = 0.984), with 95% limits of agreement "
-        "between −0.85 and +1.01 bpm. We also examine the physical limits of phone accelerometers, demonstrating mathematically why 50 Hz sensors cannot "
-        "detect acoustic lung crackles (which occur between 200 and 1,200 Hz), despite occasional claims in commercial health tools. All telemetry logs "
-        "securely into an on-device SQLite database with audit trails and PDF reporting, providing a realistic, transparent prototype for non-invasive "
-        "respiratory triage.</b>",
+        "<b><i>Abstract</i>—Accurate breathing rate measurement remains a stubborn bottleneck in routine hospital care. "
+        "While capnography gives dependable data, patients quickly tire of nasal prongs and tight masks. This paper looks at whether "
+        "an ordinary smartphone, rested over the sternum, can double as a dual-channel respiratory monitor by pairing its onboard accelerometer "
+        "with its microphone. To address patient movement and ambient noise, we implemented an adaptive noise gate (with a 2-second lookback buffer) "
+        "alongside a zero-phase 0.10–0.50 Hz Butterworth filter. We also introduced an acceleration-based motion gate that discards samples whenever "
+        "chest motion exceeds 0.40 m/s². Testing against a reference spirometer across 1,200 observation epochs gave a mean absolute error of "
+        "0.42 bpm (<i>r</i> = 0.992, <i>R</i><sup>2</sup> = 0.984). Finally, we demonstrate that 50 Hz phone accelerometers cannot physically detect "
+        "acoustic lung crackles (200–1200 Hz), clarifying a common misconception in mobile health literature. All records are stored locally in an "
+        "encrypted SQLite database with PDF reporting.</b>",
         abstract_style
     ))
 
@@ -344,51 +330,47 @@ def build_journal_paper():
     # ══════════════════════════════════════════════════════════════════
     story.append(Paragraph("I. INTRODUCTION", sec_heading_style))
     story.append(Paragraph(
-        "In emergency rooms and hospital wards, tracking how fast a patient breathes is one of the earliest warnings of trouble. An abnormal respiratory "
-        "rate—whether a sudden spike past 24 breaths per minute or a gradual drop below 10 breaths per minute—frequently shows up hours before blood pressure "
-        "crashes or heart rate spikes [1]. For patients recovering from pneumonia, managing chronic obstructive pulmonary disease (COPD), or recovering "
-        "from viral respiratory illnesses, catching these changes early makes the difference between a simple outpatient adjustment and an emergency ICU readmission [2], [3].",
+        "Clinicians often call respiratory rate the 'forgotten vital sign.' In busy hospital wards, temperature, pulse, and oxygen saturation are "
+        "logged automatically, while breathing rate is often scribbled down as an estimate or skipped entirely [1]. Yet tachypnea—rapid breathing—is "
+        "consistently one of the earliest warnings of sepsis, shock, or respiratory failure, often surfacing hours before blood pressure falls [2], [3]. "
+        "When recovering patients begin breathing faster (moving from a calm 16 up to 26 breaths a minute), catching that shift early lets clinicians "
+        "adjust treatment before emergency care becomes necessary [4].",
         body_style
     ))
 
     story.append(Paragraph(
-        "Yet in daily clinical practice, respiratory rate remains the most neglected vital sign [4]. While heart rate and blood oxygen levels are tracked "
-        "continuously by fingertip pulse oximeters, breathing rate is often checked just once every few hours by a nurse counting chest movements for thirty "
-        "seconds [5]. This manual counting is prone to human error, varies between observers, and often causes patients to alter their breathing rhythm the "
-        "moment they realize they are being watched. On the other hand, clinical instruments like spirometers, pneumotachographs, and capnography cannulae "
-        "provide precise airflow readings, but they require tight face masks or nasal prongs [6]. Patients find these uncomfortable, and wearing them for hours "
-        "at home is simply impractical.",
+        "Why is it missed so often? Counting breaths by hand is simply tedious. Watching a patient's chest rise and fall for 60 seconds takes time that "
+        "nurses rarely have, and patients often change their breathing pace the moment they realize someone is watching [5]. Automated hospital monitors "
+        "(such as spirometers and capnographs) solve the accuracy problem, but they require face masks or nasal prongs that patients find uncomfortable and "
+        "frequently pull off [6]. They are ill-suited for days of continuous tracking at home.",
         body_style
     ))
 
     story.append(Paragraph(
-        "This gap has driven substantial interest in mobile sensing [7]. Nearly every modern smartphone carries a high-grade triaxial accelerometer and sensitive "
-        "microphones. When a resting patient places a smartphone flat on their chest, the accelerometer picks up the small mechanical vibrations created by breathing "
-        "and heartbeat recoil (a technique known as seismocardiography, or SCG) [8]. At the same time, the phone's microphone can capture subtle breath sounds from the "
-        "upper airway [9].",
+        "Smartphones offer an obvious alternative. Almost everyone carries one, and their internal inertial sensors can pick up the faint mechanical pulse "
+        "of chest expansion when laid flat on the sternum (seismocardiography, or SCG) [7], [8]. The phone's microphone can also record breath sounds from "
+        "the throat and upper chest [9].",
         body_style
     ))
 
     story.append(Paragraph(
-        "However, turning raw phone data into accurate breathing rates outside a quiet laboratory involves three tough obstacles:",
+        "The real headache in practice is noise. When a patient speaks, clears their throat, or shifts in bed, chest acceleration jumps by a factor of 10 to 50, "
+        "completely overwhelming the tiny breathing wave. Background room noise—talking, hallway carts, air conditioning—creates similar confusion in the audio channel. "
+        "Furthermore, some consumer health apps claim that a phone accelerometer alone can detect acoustic lung crackles, which is physically impossible given "
+        "sensor sampling rates.",
         body_style
     ))
-
-    add_bullet_item("1)", "<i>Heartbeat and Baseline Noise:</i> Normal resting breathing occurs between 0.15 and 0.35 Hz (9 to 21 bpm), but the accelerometer also picks up 1 to 2 Hz heartbeat vibrations and slow sensor drift, which easily trick basic peak-counting code.")
-    add_bullet_item("2)", "<i>Movement Artifacts:</i> When a patient talks, laughs, coughs, or turns in bed, the chest motion spikes tenfold. Unfiltered algorithms interpret these sudden motion bursts as rapid breathing (tachypnea).")
-    add_bullet_item("3)", "<i>Environmental Room Sounds:</i> Background conversations, television audio, and air conditioning readily overpower quiet breath sounds, creating false acoustic peaks.")
-    add_bullet_item("4)", "<i>Exaggerated Sensor Claims:</i> Several consumer apps claim that a phone accelerometer alone can detect crackles or wheezes in the lungs. In reality, smartphone accelerometers sample too slowly to capture those high-frequency acoustic sounds.")
 
     story.append(Paragraph(
-        "To tackle these real-world issues, we designed and built <b>RespiraSense AI</b>. Our contributions in this work are straightforward:",
+        "In this project, we built <b>RespiraSense AI</b> to tackle these practical constraints directly. Our contributions in this work are straightforward:",
         body_style
     ))
 
-    add_bullet_item("•", "<b>Two-Stage Zero-Phase Filtering:</b> A 4th-order Butterworth bandpass filter (0.10 to 0.50 Hz) that strips away gravity drift and heartbeat pulses without shifting the timing of breaths.")
+    add_bullet_item("•", "<b>Two-Stage Zero-Phase Filtering:</b> A 4th-order Butterworth bandpass filter (0.10 to 0.50 Hz) that strips away gravity drift and heartbeat pulses without shifting breath timing.")
     add_bullet_item("•", "<b>Dynamic Audio Noise Gate:</b> A microphone energy gate with a 2-second lookback buffer that mutes background room noise during quiet breathing gaps.")
     add_bullet_item("•", "<b>Motion Gating & Signal Quality Index:</b> A dynamic acceleration detector that temporarily suppresses readings whenever chest movement exceeds 0.40 m/s², alongside an SQI metric tracking signal shape.")
     add_bullet_item("•", "<b>Multi-Method Sensor Fusion:</b> An ensemble running Welch spectral analysis, autocorrelation, and peak counting, combining motion and audio readings based on real-time signal reliability.")
-    add_bullet_item("•", "<b>Physical Sensor Limits Demonstration:</b> A clear mathematical explanation of why 50 Hz phone accelerometers cannot detect 200–1,200 Hz acoustic crackles, ensuring honest reporting.")
+    add_bullet_item("•", "<b>Physical Sensor Limits Demonstration:</b> A clear mathematical explanation of why 50 Hz phone accelerometers cannot detect 200–1,200 Hz acoustic crackles.")
     add_bullet_item("•", "<b>Local Telemetry Storage:</b> A secure, on-device SQLite database that tracks 7-day personalized baseline trends and generates hospital-style PDF summary reports.")
 
     # ══════════════════════════════════════════════════════════════════
@@ -396,40 +378,35 @@ def build_journal_paper():
     # ══════════════════════════════════════════════════════════════════
     story.append(Paragraph("II. RELATED WORK", sec_heading_style))
     story.append(Paragraph(
-        "Researchers have explored several non-invasive ways to estimate breathing rate, mainly focusing on photoplethysmography (PPG), chest accelerometry, and audio recording.",
+        "Prior research on non-invasive breathing monitors generally splits into three camps: optical pulse wave analysis, chest motion tracking, and acoustic recording.",
         body_style
     ))
 
     story.append(Paragraph(
-        "<b>A. Deriving Respiration from Optical Pulse Signals (PPG):</b> "
-        "A common method estimates breathing rate from changes in pulse oximeter waveforms (intensity, amplitude, and frequency modulation), as reviewed by "
-        "Charlton et al. [10] and Pimentel et al. [11]. While optical sensors are common in smartwatches and pulse oximeters, PPG signals degrade quickly when a "
-        "patient's hands get cold, blood pressure drops, or the finger shifts during recording. This frequently results in estimation delays of almost a minute.",
+        "<b>A. Optical Pulse Wave Signals (PPG):</b> "
+        "Pulse oximeters can extract respiratory rates by tracking subtle shifts in blood volume waveforms (PPG). However, as Charlton and Pimentel noted in their "
+        "reviews [10], [11], optical signals degrade quickly when a patient's hands are cold, blood pressure drops, or their finger moves during recording.",
         body_style
     ))
 
     story.append(Paragraph(
         "<b>B. Chest Accelerometers and Seismocardiography:</b> "
-        "Seismocardiography measures the tiny mechanical recoil of the chest wall produced by heart contractions and breathing excursions. Inverso et al. [12] "
-        "showed that accelerometers placed on the chest could track breathing during quiet sleep. Later, Pandia et al. [13] applied principal component analysis "
-        "across multiple axes to handle body tilts. However, most earlier studies were recorded under controlled conditions without active motion suppression, "
-        "meaning normal body movements caused frequent false alarms.",
+        "Using accelerometers on the chest or suprasternal notch has also been studied by Inan, Di Rienzo, and others [12]. While early papers showed clean signals "
+        "during sleep, they rarely addressed how to handle active daytime movement or posture changes without triggering false alarms [13].",
         body_style
     ))
 
     story.append(Paragraph(
-        "<b>C. Acoustic Breath Tracking:</b> "
-        "Recording tracheal and chest sounds using digital microphones has been studied by Al-shaer et al. [14] and Reyes et al. [15]. While acoustic airflow is "
-        "easy to measure when someone takes deep, forced breaths, normal resting breathing is remarkably quiet—often under 30 dB sound pressure level. In an "
-        "ordinary bedroom or hospital room, background chatter or air currents can easily drown out these faint sounds unless strict noise gating is applied [15].",
+        "<b>C. Acoustic Breath Monitoring:</b> "
+        "Acoustic monitors face the opposite problem: while forced breathing sounds are loud, normal quiet breathing is quiet—often under 30 dB sound pressure level [14]. "
+        "In a regular room, background noise easily drowns out these faint sounds unless strict noise gating is applied [15].",
         body_style
     ))
 
     story.append(Paragraph(
         "<b>D. How RespiraSense AI Differs:</b> "
         "Most previous prototypes either tested sensors individually or relied on heavy deep-learning models that require cloud servers and drain phone batteries [16]. "
-        "In contrast, RespiraSense AI uses efficient classical signal processing that runs smoothly on standard phones, combines motion and audio data, and openly "
-        "acknowledges sensor boundaries when data is unreliable.",
+        "RespiraSense AI brings these pieces together in a lightweight setup designed to run on consumer hardware, with active motion rejection rather than assuming a quiet lab.",
         body_style
     ))
 
@@ -438,11 +415,11 @@ def build_journal_paper():
     # ══════════════════════════════════════════════════════════════════
     story.append(Paragraph("III. SYSTEM ARCHITECTURE & DATA ACQUISITION", sec_heading_style))
     story.append(Paragraph(
-        "The overall structure of RespiraSense AI is shown in Fig. 1. The pipeline runs as an event-driven service divided into six clear stages:",
+        "Fig. 1 outlines the complete pipeline. Sensor data streams from the phone to our local server using the open Phyphox protocol over WebSockets. "
+        "The accelerometer runs at a stable 50.0 Hz, and audio is captured at 16.0 kHz.",
         body_style
     ))
 
-    # Figure 1: Redesigned Architecture Diagram
     fig1_path = os.path.join(FIGURES_DIR, "fig1_architecture.png")
     if os.path.exists(fig1_path):
         story.append(KeepTogether([
@@ -456,25 +433,16 @@ def build_journal_paper():
         ]))
 
     story.append(Paragraph(
-        "<b>A. Sensor Data Streaming:</b> "
-        "We stream raw sensor readings from the user's phone using the open Phyphox protocol. The phone's accelerometer samples at a steady 50.0 Hz, "
-        "which provides a 25.0 Hz Nyquist cutoff—more than enough to capture human breathing (which peaks below 1.0 Hz, or 60 bpm). The stream transmits "
-        "over a local WebSocket connection to the backend server with minimal delay.",
-        body_style
-    ))
-
-    story.append(Paragraph(
-        "<b>B. Handling Phone Placement and Orientation:</b> "
-        "Because patients place phones on their chests in slightly different positions, relying on a single axis (like Z) causes problems if the phone shifts. "
-        "Instead, RespiraSense AI calculates the total acceleration magnitude across all three axes:",
+        "Because people don't place their phone in the exact same orientation every time, relying on a single axis (like Z) is fragile. Instead, our software "
+        "calculates the total acceleration magnitude across all three axes:",
         body_style
     ))
 
     add_equation_image("eq1")
 
     story.append(Paragraph(
-        "The system also tracks the principal variance axis within the breathing band (0.10 to 0.50 Hz), ensuring it captures clear chest wall motion whether "
-        "the phone rests vertically or horizontally across the sternum.",
+        "The system also isolates the axis with the strongest respiratory frequency variance within the 0.10–0.50 Hz band, ensuring it captures clear chest wall motion "
+        "whether the phone rests vertically or horizontally across the sternum.",
         body_style
     ))
 
@@ -498,7 +466,6 @@ def build_journal_paper():
         body_style
     ))
 
-    # Figure 2: Waveforms
     fig2_path = os.path.join(FIGURES_DIR, "fig2_waveforms.png")
     if os.path.exists(fig2_path):
         story.append(KeepTogether([
@@ -561,7 +528,6 @@ def build_journal_paper():
         body_style
     ))
 
-    # Figure 3: SQI & Motion Gating
     fig4_path = os.path.join(FIGURES_DIR, "fig4_sqi_motion.png")
     if os.path.exists(fig4_path):
         story.append(KeepTogether([
@@ -636,7 +602,6 @@ def build_journal_paper():
         body_style
     ))
 
-    # Figure 4: Crepitation Frequency Proof
     fig5_path = os.path.join(FIGURES_DIR, "fig5_crepitation.png")
     if os.path.exists(fig5_path):
         story.append(KeepTogether([
@@ -761,7 +726,6 @@ def build_journal_paper():
         body_style
     ))
 
-    # Figure 5: Correlation & Bland-Altman
     fig3_path = os.path.join(FIGURES_DIR, "fig3_validation.png")
     if os.path.exists(fig3_path):
         story.append(KeepTogether([
@@ -782,7 +746,6 @@ def build_journal_paper():
         body_style
     ))
 
-    # Figure 6: Error Distribution
     fig6_path = os.path.join(FIGURES_DIR, "fig6_error_distribution.png")
     if os.path.exists(fig6_path):
         story.append(KeepTogether([
@@ -808,7 +771,7 @@ def build_journal_paper():
             Paragraph("<b>Module</b>", table_cell_header),
             Paragraph("<b>Parameter</b>", table_cell_header),
             Paragraph("<b>Tuned Setting</b>", table_cell_header),
-            Paragraph("<b>Engineering & Physiological Reason</b>", table_cell_header)
+            Paragraph("<b>Engineering &amp; Physiological Reason</b>", table_cell_header)
         ],
         [
             Paragraph("Bandpass Filter", table_cell_style),
@@ -818,7 +781,7 @@ def build_journal_paper():
         ],
         [
             Paragraph("Audio Noise Gate", table_cell_style),
-            Paragraph("Threshold & Buffer", table_cell_style),
+            Paragraph("Threshold &amp; Buffer", table_cell_style),
             Paragraph("−42.0 dBFS, 2.0 s buffer", table_cell_style),
             Paragraph("Prevents gate fluttering during natural pauses between breaths.", table_cell_style)
         ],
@@ -836,7 +799,7 @@ def build_journal_paper():
         ],
         [
             Paragraph("Welch PSD", table_cell_style),
-            Paragraph("Windowing & Overlap", table_cell_style),
+            Paragraph("Windowing &amp; Overlap", table_cell_style),
             Paragraph("10.0 s Hanning, 75% overlap", table_cell_style),
             Paragraph("Balances clean frequency resolution with low response delay.", table_cell_style)
         ],
@@ -945,7 +908,7 @@ def build_journal_paper():
         "[13] A. S. Pandia, O. T. Inan, and J. A. G. M. Reiss, \"Principal component analysis for multiaxial seismocardiographic respiration extraction,\" <i>IEEE J. Transl. Eng. Health Med.</i>, vol. 7, pp. 1–9, May 2019.",
         "[14] B. A. Reyes, N. Reljin, and K. H. Chon, \"Tracheal sounds acquisition using smartphone microphones for tidal volume and airflow monitoring,\" <i>IEEE Trans. Biomed. Eng.</i>, vol. 61, no. 11, pp. 2732–2741, Nov. 2014.",
         "[15] R. A. Al-Mously, M. M. Al-Akaidi, and S. M. Faris, \"Acoustic identification of respiratory phases using spectral entropy and dynamic thresholds,\" <i>Comput. Biol. Med.</i>, vol. 112, p. 103362, Sep. 2019.",
-        "[16] A. Hannun, P. Rajpurkar, M. Haghpanahi, et al., \"Cardiologist-level arrhythmia detection and classification in ambulatory electrocardiograms using deep neural networks,\" <i>Nat. Med.</i>, vol. 25, no. 1, pp. 65–69, Jan. 2019.",
+        "[16] A. Hannun, P. Rajpurkar, M. Haghpanahi, et al., \"Cardiologist-level arrhythmia detection in ambulatory electrocardiograms using deep neural networks,\" <i>Nat. Med.</i>, vol. 25, no. 1, pp. 65–69, Jan. 2019.",
         "[17] H. Pasterkamp, S. S. Kraman, and G. R. Wodicka, \"Respiratory sounds: Advances in transmission, generation, and clinical computer analysis,\" <i>Am. J. Respir. Crit. Care Med.</i>, vol. 156, no. 3, pp. 974–987, Sep. 1997.",
         "[18] A. R. Sovijarvi, F. Dalmasso, J. Vanderschoot, et al., \"Definition of terms for computerised respiratory sound analysis and guidelines for lung sound recordings,\" <i>Eur. Respir. Rev.</i>, vol. 10, no. 77, pp. 585–605, 2000."
     ]
