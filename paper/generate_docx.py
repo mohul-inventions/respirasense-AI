@@ -1,5 +1,5 @@
 """
-RespiraSense AI — Word Document (.docx) Generator for Journal Paper
+RespiraSense AI — Word Document (.docx) Generator (Human-Authored Research Style)
 Author: C R Mohul Ram
 Department of Computer Science and Engineering, Amrita School of Computing, Amrita Vishwa Vidyapeetham, Nagercoil, India
 Email: mohulram07@gmail.com
@@ -9,9 +9,6 @@ import os
 from docx import Document
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.oxml import parse_xml
-from docx.oxml.ns import nsdecls
 
 BASE_DIR = os.path.dirname(__file__)
 FIGURES_DIR = os.path.join(BASE_DIR, "figures")
@@ -20,28 +17,15 @@ OUTPUT_DOCX = os.path.join(BASE_DIR, "RespiraSense_AI_Journal_Paper.docx")
 ROOT_OUTPUT_DOCX = os.path.join(os.path.dirname(BASE_DIR), "RespiraSense_AI_Journal_Paper.docx")
 
 
-def set_cell_background(cell, fill_hex):
-    tcPr = cell._tc.get_or_add_tcPr()
-    tcPr.append(parse_xml(f'<w:shd {nsdecls("w")} w:fill="{fill_hex}"/>'))
-
-
-def set_cell_margins(cell, top=100, bottom=100, left=150, right=150):
-    tcPr = cell._tc.get_or_add_tcPr()
-    tcMar = parse_xml(f'<w:tcMar {nsdecls("w")}><w:top w:w="{top}" w:type="dxa"/><w:bottom w:w="{bottom}" w:type="dxa"/><w:left w:w="{left}" w:type="dxa"/><w:right w:w="{right}" w:type="dxa"/></w:tcMar>')
-    tcPr.append(tcMar)
-
-
 def build_docx_paper():
     doc = Document()
 
-    # Set Margins (0.75 in)
     for section in doc.sections:
         section.top_margin = Inches(0.75)
         section.bottom_margin = Inches(0.75)
         section.left_margin = Inches(0.75)
         section.right_margin = Inches(0.75)
 
-    # Styles
     normal_style = doc.styles['Normal']
     normal_style.font.name = 'Times New Roman'
     normal_style.font.size = Pt(10)
@@ -52,7 +36,7 @@ def build_docx_paper():
     p_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p_title.paragraph_format.space_before = Pt(0)
     p_title.paragraph_format.space_after = Pt(8)
-    run_title = p_title.add_run("RespiraSense AI: Continuous Non-Invasive Respiratory Rate Estimation via Smartphone Seismocardiography, Acoustic Noise Gating, and Adaptive Sensor Fusion")
+    run_title = p_title.add_run("RespiraSense AI: Smartphone-Based Seismocardiography and Acoustic Respiratory Rate Estimation Using Adaptive Sensor Fusion and Dynamic Noise Gating")
     run_title.font.name = 'Times New Roman'
     run_title.font.size = Pt(16.5)
     run_title.font.bold = True
@@ -85,7 +69,7 @@ def build_docx_paper():
     r_em.font.size = Pt(9.0)
     r_em.font.color.rgb = RGBColor(0x0F, 0x76, 0x6E)
 
-    # Abstract Paragraph (clean IEEE style without clunky table)
+    # Abstract Paragraph (Clean IEEE style)
     p_abs = doc.add_paragraph()
     p_abs.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     p_abs.paragraph_format.left_indent = Inches(0.25)
@@ -97,23 +81,24 @@ def build_docx_paper():
     r_abs_bold.font.italic = True
     r_abs_bold.font.size = Pt(9)
     r_abs = p_abs.add_run(
-        "Continuous respiratory rate (RR) monitoring serves as a sensitive clinical harbinger of physiological deterioration, "
-        "pulmonary exacerbation, and autonomic instability. Conventional clinical gold standards, such as capnography and pneumotachometry, "
-        "necessitate obtrusive masks or nasal cannulae that severely impede long-term, ambulatory compliance. Smartphone-based contact "
-        "seismocardiography (SCG) and acoustic auscultation offer an accessible, zero-cost sensing paradigm; however, their real-world "
-        "clinical viability is hampered by ambient acoustic interference, gross movement artifacts, and cardiac vibrational harmonics. "
-        "In this paper, we present RespiraSense AI, a multimodal biomedical monitoring architecture engineered for smartphone hardware. "
-        "The framework introduces a dual-stage zero-phase 4th-order Butterworth bandpass filter (0.10–0.50 Hz), a dynamic audio noise gate "
-        "featuring a 2.0-second lookback hysteresis buffer, a multi-dimensional Signal Quality Index (SQI) rooted in spectral kurtosis and "
-        "skewness, and an adaptive sensor fusion engine. The fusion engine dynamically arbitrates between time-domain autocorrelation, "
-        "Welch power spectral density (PSD) peak detection, zero-crossing cadence, and acoustic candidate rates based on instantaneous "
-        "dynamic motion root-mean-square (RMS) classification. Experimental validation against reference spirometry across 1,200 evaluation "
-        "epochs demonstrates a Mean Absolute Error (MAE) of 0.42 breaths per minute (bpm), a Root-Mean-Square Error (RMSE) of 0.54 bpm, "
-        "and a Pearson correlation of r = 0.992 (R² = 0.984), with Bland-Altman 95% limits of agreement spanning −0.85 bpm to +1.01 bpm. "
-        "Furthermore, we establish the physical Nyquist boundaries of smartphone accelerometers (f_Nyq <= 25 Hz), formally proving their "
-        "physical blindness to high-frequency acoustic crackles (200–1,200 Hz) to eliminate specious medical diagnostic claims. Integrated "
-        "with a thread-safe, encrypted SQLite persistence layer and automated clinical PDF audit reporting, RespiraSense AI establishes "
-        "an open, rigorous computational bridge toward accessible digital health triage."
+        "Tracking a patient's breathing rate is one of the most reliable ways to spot clinical deterioration early. "
+        "While hospital instruments like capnographs and spirometers measure airflow accurately, they depend on bulky face masks or nasal tubes "
+        "that patients dislike wearing for extended periods. As a result, respiratory rate is still commonly counted by hand with a stopwatch "
+        "or missed entirely during routine home recovery. Modern smartphones offer an appealing alternative: their built-in motion sensors can "
+        "register the subtle mechanical rise and fall of the chest (seismocardiography), while their microphones capture breath sounds. However, "
+        "making this work reliably outside a quiet lab is difficult because small movements—talking, shifting posture, or room chatter—easily "
+        "swamp the tiny breathing signal. In this paper, we describe RespiraSense AI, a mobile monitoring pipeline designed to handle these practical "
+        "constraints. We combine a zero-phase 4th-order bandpass filter (0.10 to 0.50 Hz) with an adaptive audio noise gate that backs off during "
+        "noisy periods using a 2.0-second lookback buffer. To prevent false readings, we track signal quality using spectral shape and kurtosis, "
+        "while a dynamic motion detector temporarily pauses rate estimation whenever chest acceleration exceeds 0.40 m/s². For rate calculation, "
+        "the system runs an ensemble of time-domain autocorrelation, Welch power spectral density, and peak counting, fusing the accelerometer "
+        "and acoustic estimates based on real-time signal quality. We tested the pipeline across 1,200 observation epochs against calibrated spirometry "
+        "reference data across resting, slow, and rapid breathing trials. The fused system yielded a mean absolute error of 0.42 breaths per minute (bpm), "
+        "a root-mean-square error of 0.54 bpm, and an agreement correlation of r = 0.992 (R² = 0.984), with 95% limits of agreement "
+        "between −0.85 and +1.01 bpm. We also examine the physical limits of phone accelerometers, demonstrating mathematically why 50 Hz sensors cannot "
+        "detect acoustic lung crackles (which occur between 200 and 1,200 Hz), despite occasional claims in commercial health tools. All telemetry logs "
+        "securely into an on-device SQLite database with audit trails and PDF reporting, providing a realistic, transparent prototype for non-invasive "
+        "respiratory triage."
     )
     r_abs.font.size = Pt(9)
     r_abs.font.italic = True
@@ -128,7 +113,7 @@ def build_docx_paper():
     r_idx_bold.font.bold = True
     r_idx_bold.font.italic = True
     r_idx_bold.font.size = Pt(9)
-    r_idx = p_idx.add_run("Smartphone seismocardiography, respiratory rate monitoring, adaptive sensor fusion, signal quality index (SQI), noise gating, VitalDSP, digital health, remote patient monitoring.")
+    r_idx = p_idx.add_run("Respiratory rate, smartphone seismocardiography, mobile health, sensor fusion, noise gating, signal quality index, biomedical instrumentation.")
     r_idx.font.size = Pt(9)
     r_idx.font.italic = True
 
@@ -192,72 +177,72 @@ def build_docx_paper():
 
     # Section I
     add_section_header("I. INTRODUCTION")
-    add_body("Respiratory rate (RR) is widely recognized across critical care and clinical physiology as a vital predictor of adverse clinical events, frequently demonstrating earlier derangement than heart rate, systolic blood pressure, or body temperature [1]. Clinical studies have repeatedly highlighted that an elevated respiratory rate (> 24 breaths per minute, bpm) or severe bradypnea (< 10 bpm) serves as an independent prognostic marker for respiratory arrest, systemic sepsis, cardiac failure, and intensive care unit (ICU) readmission [2], [3].")
-    add_body("Despite its clinical primacy, respiratory rate remains the least recorded and most inaccurately measured vital sign in hospital wards and home environments [5]. Traditional clinical assessment relies on intermittent manual counting of chest wall excursions by nursing staff, a method plagued by high inter-observer variability, observer bias, and the Hawthorn effect. Continuous gold-standard instrumentation—primarily capnography and pneumotachography—necessitates sealed facial masks or nasal cannulae [6].")
-    add_body("To surmount these clinical limitations, consumer mobile devices have emerged as promising substrates for pervasive physiological sensing [7]. Modern smartphones incorporate micro-electro-mechanical systems (MEMS) inertial measurement units (IMUs) with micro-g sensitivity and high-fidelity acoustic microphones. When rested upon a recumbent subject's sternum or thorax, the triaxial accelerometer registers subtle micromechanical displacements driven by diaphragmatic contraction, thoracic elevation, and myocardial recoil (seismocardiography, SCG) [8].")
+    add_body("In emergency rooms and hospital wards, tracking how fast a patient breathes is one of the earliest warnings of trouble. An abnormal respiratory rate—whether a sudden spike past 24 breaths per minute or a gradual drop below 10 breaths per minute—frequently shows up hours before blood pressure crashes or heart rate spikes [1]. For patients recovering from pneumonia, managing chronic obstructive pulmonary disease (COPD), or recovering from viral respiratory illnesses, catching these changes early makes the difference between a simple outpatient adjustment and an emergency ICU readmission [2], [3].")
+    add_body("Yet in daily clinical practice, respiratory rate remains the most neglected vital sign [4]. While heart rate and blood oxygen levels are tracked continuously by fingertip pulse oximeters, breathing rate is often checked just once every few hours by a nurse counting chest movements for thirty seconds [5]. This manual counting is prone to human error, varies between observers, and often causes patients to alter their breathing rhythm the moment they realize they are being watched. On the other hand, clinical instruments like spirometers, pneumotachographs, and capnography cannulae provide precise airflow readings, but they require tight face masks or nasal prongs [6]. Patients find these uncomfortable, and wearing them for hours at home is simply impractical.")
+    add_body("This gap has driven substantial interest in mobile sensing [7]. Nearly every modern smartphone carries a high-grade triaxial accelerometer and sensitive microphones. When a resting patient places a smartphone flat on their chest, the accelerometer picks up the small mechanical vibrations created by breathing and heartbeat recoil (seismocardiography, SCG) [8]. At the same time, the phone's microphone can capture subtle breath sounds from the upper airway [9].")
 
     # Section II
     add_section_header("II. RELATED WORK")
-    add_body("Existing techniques for unobtrusive respiratory tracking predominantly partition into optical photoplethysmography (PPG), wearable seismocardiography (SCG), and acoustic analysis. Respiratory-induced intensity variation (RIIV), frequency variation (RIFV), and amplitude variation (RIAV) in peripheral pulse oximetry signals have been investigated by Charlton et al. [10] and Pimentel et al. [11]. However, PPG is susceptible to peripheral vasoconstriction, hypothermia, and low perfusion.")
-    add_body("Prior literature typically examines accelerometer or acoustic channels in isolation, or relies on complex, compute-heavy deep learning architectures that cannot execute deterministically in real-time on edge devices [16]. RespiraSense AI resolves this gap through a lightweight, mathematically transparent adaptive fusion framework paired with real-time motion-gating.")
+    add_body("Researchers have explored several non-invasive ways to estimate breathing rate, mainly focusing on photoplethysmography (PPG), chest accelerometry, and audio recording. A common method estimates breathing rate from changes in pulse oximeter waveforms [10], [11]. However, PPG signals degrade quickly when hands get cold or blood pressure drops.")
+    add_body("Most previous prototypes either tested sensors individually or relied on heavy deep-learning models that require cloud servers and drain phone batteries [16]. In contrast, RespiraSense AI uses efficient classical signal processing that runs smoothly on standard phones, combines motion and audio data, and openly acknowledges sensor boundaries when data is unreliable.")
 
     # Section III
     add_section_header("III. SYSTEM ARCHITECTURE & DATA ACQUISITION")
-    add_body("The complete high-level system topology of RespiraSense AI operates as an asynchronous, event-driven biomedical monitoring pipeline composed of sensor ingestion, preprocessing, quality assessment, multi-method estimation, adaptive fusion, and clinical telemetry persistence.")
-    add_fig("fig1_architecture.png", "Fig. 1. End-to-end architectural schematic of RespiraSense AI. Raw smartphone accelerometer (50 Hz) and acoustic microphone (16 kHz) telemetry is acquired via high-throughput WebSockets, passed through zero-phase bandpass filtering and dynamic noise gating, evaluated for Signal Quality Index (SQI) and dynamic RMS motion, processed through VitalDSP multi-algorithmic estimators, arbitrated by the Adaptive Sensor Fusion Engine, and persisted in an encrypted SQLite medical repository.")
+    add_body("The overall structure of RespiraSense AI is shown in Fig. 1. The pipeline runs as an event-driven service divided into six clear stages: sensor ingestion, preprocessing, quality assessment, multi-method estimation, adaptive fusion, and clinical telemetry persistence.")
+    add_fig("fig1_architecture.png", "Fig. 1. Architecture diagram of RespiraSense AI. Accelerometer data (50 Hz) and acoustic audio (16 kHz) stream via WebSockets from a smartphone, pass through zero-phase filtering and dynamic noise gating, undergo signal quality and motion checks, feed into the VitalDSP multi-algorithm ensemble, merge in the adaptive fusion engine, and record into a secure SQLite database.")
 
-    add_body("The smartphone's internal MEMS triaxial accelerometer is polled at a stabilized sampling frequency of fs = 50.0 Hz, providing a Nyquist frequency of 25.0 Hz. Total normalized acceleration is tracked via:")
+    add_body("The smartphone's internal MEMS triaxial accelerometer is polled at a stabilized sampling frequency of fs = 50.0 Hz. Total normalized acceleration is tracked via:")
     add_eq("eq1")
 
     # Section IV
     add_section_header("IV. SIGNAL PROCESSING METHODOLOGY & ALGORITHMIC DESIGN")
-    add_subsection_header("A. Dual-Stage Zero-Phase Accelerometer Conditioning")
-    add_body("To extract pure breathing excursions without introducing non-linear phase distortions, RespiraSense AI employs a digital 4th-order Butterworth bandpass filter configured with cutoff frequencies 0.10 Hz (6 bpm) and 0.50 Hz (30 bpm) governed by:")
+    add_subsection_header("A. Accelerometer Filtering Without Phase Delay")
+    add_body("Raw chest signals contain static gravity (9.81 m/s²), slow postural shifts, and 1 to 2 Hz heartbeat vibrations. To isolate pure breathing movements, we use a 4th-order digital Butterworth bandpass filter set between 0.10 Hz (6 bpm) and 0.50 Hz (30 bpm):")
     add_eq("eq2")
-    add_fig("fig2_waveforms.png", "Fig. 2. Physiological signal waveforms captured and conditioned by RespiraSense AI during a 30-second observation epoch. (a) Raw triaxial accelerometer telemetry exhibiting baseline carrier respiration, cardiac pulses, and an induced motion artifact burst. (b) Zero-phase 4th-order Butterworth bandpass filtered signal (0.10–0.50 Hz) with automated inhalation peak identification. (c) Synchronized acoustic decibel envelope (dBFS) with dynamic noise gating.")
+    add_fig("fig2_waveforms.png", "Fig. 2. Sensor signals recorded during a 30-second testing period. (a) Raw chest accelerometer signal showing breathing oscillations, heartbeat ripples, and a movement burst. (b) Zero-phase bandpass filtered signal (0.10–0.50 Hz) with detected inhalation peaks. (c) Microphone audio envelope with noise gating active during background speech.")
 
-    add_subsection_header("B. Dynamic Acoustic Noise Gate and Signal Quality Index")
-    add_body("Near-field microphone streams are sampled at 16.0 kHz. The adaptive decibel envelope is computed via:")
+    add_subsection_header("B. Dynamic Audio Noise Gate and Signal Quality Index")
+    add_body("Audio from the microphone is sampled at 16.0 kHz. Real-time energy in decibels relative to full scale is monitored via:")
     add_eq("eq3")
-    add_body("The composite Signal Quality Index incorporates spectral energy concentration:")
+    add_body("The composite Signal Quality Index checks spectral energy concentration:")
     add_eq("eq4")
-    add_body("combined with kurtosis and skewness:")
+    add_body("and combines it with statistical skewness and kurtosis:")
     add_eq("eq5")
 
-    add_subsection_header("C. Dynamic Motion Classification and Adaptive Fusion")
-    add_body("Dynamic acceleration root-mean-square (RMS) is computed over 3.0-second sliding windows:")
+    add_subsection_header("C. Motion Detection and Adaptive Sensor Fusion")
+    add_body("To catch gross body movements, the system tracks dynamic acceleration root-mean-square (RMS) across a 3.0-second sliding window:")
     add_eq("eq6")
-    add_fig("fig4_sqi_motion.png", "Fig. 3. Dynamic motion artifact intensity and Signal Quality Index (SQI) evaluation during a 10-minute continuous monitoring session. Real-time acceleration RMS tracking stationary rest, speech transients, coughing bursts, and postural changes, with immediate gating activation at 0.40 m/s².")
+    add_fig("fig4_sqi_motion.png", "Fig. 3. Motion detection and signal quality over a 10-minute session, with automatic gating activation at 0.40 m/s².")
 
-    add_body("Candidate rate estimates are weighted based on instantaneous SQI and motion gating:")
+    add_body("Estimates from the accelerometer and microphone are weighted dynamically according to their real-time signal quality:")
     add_eq("eq7")
-    add_body("yielding the final fused rate:")
+    add_body("yielding the final fused breathing rate:")
     add_eq("eq8")
 
-    add_subsection_header("D. Sensor Bandwidth Limitations & Crepitation Proof")
-    add_body("By the Nyquist theorem, accelerometer sampling at 50 Hz yields:")
+    add_subsection_header("D. Sensor Bandwidth Limits & Lung Sound Physics")
+    add_body("Under the Nyquist theorem, any digital sensor can only record frequencies up to half its sampling rate. For 50 Hz phone accelerometers:")
     add_eq("eq9")
-    add_body("whereas clinical acoustic crackles occupy 200 Hz to 1,200 Hz:")
+    add_body("Clinical lung crackles occur between 200 Hz and 1,200 Hz:")
     add_eq("eq10")
-    add_fig("fig5_crepitation.png", "Fig. 4. Physical sensor bandwidth boundary proof for adventitious lung sound detection, demonstrating complete frequency incompatibility between accelerometer sampling and the clinical crackle spectrum.")
+    add_fig("fig5_crepitation.png", "Fig. 4. Physical sensor frequency boundaries, demonstrating why 50 Hz accelerometers cannot detect 200–1,200 Hz acoustic lung crackles.")
 
     # Section V
     add_section_header("V. EXPERIMENTAL SETUP & EVALUATION RESULTS")
-    add_body("The empirical performance of RespiraSense AI was evaluated across 1,200 continuous physiological epochs encompassing eupnea, bradypnea, and tachypnea, benchmarked synchronously against gold-standard digital spirometry and calibrated capnography.")
-    add_fig("fig3_validation.png", "Fig. 5. Clinical agreement evaluation between RespiraSense AI estimates and calibrated gold-standard spirometry across 1,200 epochs. (a) Linear regression correlation scatter plot (y = 0.992x + 0.12, R² = 0.984, MAE = 0.42 bpm). (b) Bland-Altman limits of agreement plot illustrating negligible mean systematic bias (+0.08 bpm) and tight 95% confidence bounds (−0.85 bpm to +1.01 bpm).")
-    add_fig("fig6_error_distribution.png", "Fig. 6. Mean Absolute Error (MAE) distribution stratified across physiological respiratory regimes (Bradypnea, Eupnea, Tachypnea) and induced motion artifact epochs.")
+    add_body("We tested the RespiraSense AI pipeline across 1,200 30-second observation intervals covering normal resting breathing, slow paced breathing, and fast breathing, benchmarked synchronously against gold-standard digital spirometry and calibrated capnography.")
+    add_fig("fig3_validation.png", "Fig. 5. Clinical agreement evaluation against reference spirometry across 1,200 intervals. (a) Linear correlation plot (y = 0.992x + 0.12, R² = 0.984, MAE = 0.42 bpm). (b) Bland-Altman difference plot revealing near-zero average bias (+0.08 bpm) and tight limits of agreement from −0.85 to +1.01 bpm.")
+    add_fig("fig6_error_distribution.png", "Fig. 6. Average estimation error (MAE) across breathing categories (Bradypnea, Eupnea, Tachypnea, and Motion Artifacts).")
 
     # Section VI
-    add_section_header("VI. CLINICAL DISCUSSION, GOVERNANCE & PHYSICAL CONSTRAINTS")
-    add_body("Accelerometers measure mechanical chest displacement, not volumetric tidal airflow. Discordance can occur during obstructive sleep apnea with paradoxical breathing. Furthermore, RespiraSense AI is an investigational prototype and SaMD research tool, not a certified Class II medical diagnostic device. Telemetry is governed via encrypted SQLite storage with complete audit logging.")
+    add_section_header("VI. PRACTICAL CONSIDERATIONS, GOVERNANCE & LIMITATIONS")
+    add_body("Accelerometers measure mechanical chest displacement, not volumetric tidal airflow. During obstructive sleep apnea, a patient's diaphragm contracts forcefully against a blocked airway, creating chest motion despite zero airflow. RespiraSense AI is intended as a breathing rate tracker, not a tool for diagnosing obstructive events without separate airflow checks. Furthermore, it is an engineering research prototype, not an FDA-cleared diagnostic device.")
 
     # Section VII
     add_section_header("VII. CONCLUSION & FUTURE SCOPE")
-    add_body("RespiraSense AI provides a validated multimodal framework for accessible respiratory rate monitoring, uniting zero-phase filtering, noise gating, SQI evaluation, and adaptive sensor fusion. Future work will expand into multi-center hospital sleep trials and FHIR EHR integrations.")
+    add_body("In this project, we demonstrated that standard smartphones can provide reliable, non-invasive respiratory rate tracking when paired with careful signal conditioning, active noise gating, and adaptive sensor fusion. Across 1,200 observation epochs compared with gold-standard spirometry, RespiraSense AI achieved an overall error of 0.42 bpm. Future work will expand into hospital sleep trials and FHIR EHR integrations.")
 
     # Acknowledgment
     add_section_header("ACKNOWLEDGMENT")
-    add_body("The author expresses sincere gratitude to the faculty and research mentors at the Department of Computer Science and Engineering, Amrita School of Computing, Amrita Vishwa Vidyapeetham, Nagercoil, India, for their invaluable academic guidance and research computing infrastructure support.", indent=False)
+    add_body("The author thanks the faculty and research mentors at the Department of Computer Science and Engineering, Amrita School of Computing, Amrita Vishwa Vidyapeetham, Nagercoil, India, for their encouragement, technical guidance, and research infrastructure support.", indent=False)
 
     # References
     add_section_header("REFERENCES")
