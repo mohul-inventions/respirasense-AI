@@ -9,12 +9,13 @@ import os
 from docx import Document
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ALIGN_VERTICAL
-from docx.oxml import OxmlElement, parse_xml
-from docx.oxml.ns import nsdecls, qn
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
 
 BASE_DIR = os.path.dirname(__file__)
 FIGURES_DIR = os.path.join(BASE_DIR, "figures")
+EQ_DIR = os.path.join(FIGURES_DIR, "equations")
 OUTPUT_DOCX = os.path.join(BASE_DIR, "RespiraSense_AI_Journal_Paper.docx")
 ROOT_OUTPUT_DOCX = os.path.join(os.path.dirname(BASE_DIR), "RespiraSense_AI_Journal_Paper.docx")
 
@@ -34,8 +35,7 @@ def build_docx_paper():
     doc = Document()
 
     # Set Margins (0.75 in)
-    sections = doc.sections
-    for section in sections:
+    for section in doc.sections:
         section.top_margin = Inches(0.75)
         section.bottom_margin = Inches(0.75)
         section.left_margin = Inches(0.75)
@@ -54,7 +54,7 @@ def build_docx_paper():
     p_title.paragraph_format.space_after = Pt(8)
     run_title = p_title.add_run("RespiraSense AI: Continuous Non-Invasive Respiratory Rate Estimation via Smartphone Seismocardiography, Acoustic Noise Gating, and Adaptive Sensor Fusion")
     run_title.font.name = 'Times New Roman'
-    run_title.font.size = Pt(17)
+    run_title.font.size = Pt(16.5)
     run_title.font.bold = True
     run_title.font.color.rgb = RGBColor(0x0F, 0x17, 0x2A)
 
@@ -73,27 +73,25 @@ def build_docx_paper():
     p_aff.paragraph_format.space_after = Pt(2)
     r_aff = p_aff.add_run("Department of Computer Science and Engineering, Amrita School of Computing\nAmrita Vishwa Vidyapeetham, Nagercoil, India")
     r_aff.font.name = 'Times New Roman'
-    r_aff.font.size = Pt(9.5)
+    r_aff.font.size = Pt(9.0)
     r_aff.font.italic = True
 
     # Email
     p_em = doc.add_paragraph()
     p_em.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p_em.paragraph_format.space_after = Pt(12)
+    p_em.paragraph_format.space_after = Pt(8)
     r_em = p_em.add_run("mohulram07@gmail.com")
     r_em.font.name = 'Times New Roman'
-    r_em.font.size = Pt(9.5)
+    r_em.font.size = Pt(9.0)
     r_em.font.color.rgb = RGBColor(0x0F, 0x76, 0x6E)
 
-    # Abstract Box Table
-    t_abs = doc.add_table(rows=1, cols=1)
-    t_abs.alignment = WD_TABLE_ALIGNMENT.CENTER
-    cell = t_abs.rows[0].cells[0]
-    set_cell_background(cell, "F8FAFC")
-    set_cell_margins(cell, top=140, bottom=140, left=200, right=200)
-
-    p_abs = cell.paragraphs[0]
+    # Abstract Paragraph (clean IEEE style without clunky table)
+    p_abs = doc.add_paragraph()
     p_abs.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p_abs.paragraph_format.left_indent = Inches(0.25)
+    p_abs.paragraph_format.right_indent = Inches(0.25)
+    p_abs.paragraph_format.space_before = Pt(6)
+    p_abs.paragraph_format.space_after = Pt(4)
     r_abs_bold = p_abs.add_run("Abstract—")
     r_abs_bold.font.bold = True
     r_abs_bold.font.italic = True
@@ -120,9 +118,12 @@ def build_docx_paper():
     r_abs.font.size = Pt(9)
     r_abs.font.italic = True
 
-    p_idx = cell.add_paragraph()
+    p_idx = doc.add_paragraph()
     p_idx.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    p_idx.paragraph_format.space_before = Pt(4)
+    p_idx.paragraph_format.left_indent = Inches(0.25)
+    p_idx.paragraph_format.right_indent = Inches(0.25)
+    p_idx.paragraph_format.space_before = Pt(2)
+    p_idx.paragraph_format.space_after = Pt(10)
     r_idx_bold = p_idx.add_run("Index Terms—")
     r_idx_bold.font.bold = True
     r_idx_bold.font.italic = True
@@ -130,8 +131,6 @@ def build_docx_paper():
     r_idx = p_idx.add_run("Smartphone seismocardiography, respiratory rate monitoring, adaptive sensor fusion, signal quality index (SQI), noise gating, VitalDSP, digital health, remote patient monitoring.")
     r_idx.font.size = Pt(9)
     r_idx.font.italic = True
-
-    doc.add_paragraph().paragraph_format.space_after = Pt(12)
 
     def add_section_header(title):
         p = doc.add_paragraph()
@@ -182,6 +181,15 @@ def build_docx_paper():
             r.font.size = Pt(8.5)
             r.font.color.rgb = RGBColor(0x33, 0x41, 0x55)
 
+    def add_eq(eq_name):
+        eq_p = os.path.join(EQ_DIR, f"{eq_name}.png")
+        if os.path.exists(eq_p):
+            p_eq = doc.add_paragraph()
+            p_eq.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p_eq.paragraph_format.space_before = Pt(3)
+            p_eq.paragraph_format.space_after = Pt(3)
+            p_eq.add_run().add_picture(eq_p, width=Inches(6.2))
+
     # Section I
     add_section_header("I. INTRODUCTION")
     add_body("Respiratory rate (RR) is widely recognized across critical care and clinical physiology as a vital predictor of adverse clinical events, frequently demonstrating earlier derangement than heart rate, systolic blood pressure, or body temperature [1]. Clinical studies have repeatedly highlighted that an elevated respiratory rate (> 24 breaths per minute, bpm) or severe bradypnea (< 10 bpm) serves as an independent prognostic marker for respiratory arrest, systemic sepsis, cardiac failure, and intensive care unit (ICU) readmission [2], [3].")
@@ -198,18 +206,39 @@ def build_docx_paper():
     add_body("The complete high-level system topology of RespiraSense AI operates as an asynchronous, event-driven biomedical monitoring pipeline composed of sensor ingestion, preprocessing, quality assessment, multi-method estimation, adaptive fusion, and clinical telemetry persistence.")
     add_fig("fig1_architecture.png", "Fig. 1. End-to-end architectural schematic of RespiraSense AI. Raw smartphone accelerometer (50 Hz) and acoustic microphone (16 kHz) telemetry is acquired via high-throughput WebSockets, passed through zero-phase bandpass filtering and dynamic noise gating, evaluated for Signal Quality Index (SQI) and dynamic RMS motion, processed through VitalDSP multi-algorithmic estimators, arbitrated by the Adaptive Sensor Fusion Engine, and persisted in an encrypted SQLite medical repository.")
 
+    add_body("The smartphone's internal MEMS triaxial accelerometer is polled at a stabilized sampling frequency of fs = 50.0 Hz, providing a Nyquist frequency of 25.0 Hz. Total normalized acceleration is tracked via:")
+    add_eq("eq1")
+
     # Section IV
     add_section_header("IV. SIGNAL PROCESSING METHODOLOGY & ALGORITHMIC DESIGN")
     add_subsection_header("A. Dual-Stage Zero-Phase Accelerometer Conditioning")
-    add_body("Raw chest displacement signals are contaminated by static gravity (9.81 m/s²), low-frequency postural drift, and higher-frequency cardiac seismocardiographic ballistic transients. To extract pure breathing excursions without introducing non-linear phase distortions, RespiraSense AI employs a digital 4th-order Butterworth bandpass filter configured with cutoff frequencies 0.10 Hz (6 bpm) and 0.50 Hz (30 bpm) executed via forward-backward recursion (zero-phase filtfilt).")
+    add_body("To extract pure breathing excursions without introducing non-linear phase distortions, RespiraSense AI employs a digital 4th-order Butterworth bandpass filter configured with cutoff frequencies 0.10 Hz (6 bpm) and 0.50 Hz (30 bpm) governed by:")
+    add_eq("eq2")
     add_fig("fig2_waveforms.png", "Fig. 2. Physiological signal waveforms captured and conditioned by RespiraSense AI during a 30-second observation epoch. (a) Raw triaxial accelerometer telemetry exhibiting baseline carrier respiration, cardiac pulses, and an induced motion artifact burst. (b) Zero-phase 4th-order Butterworth bandpass filtered signal (0.10–0.50 Hz) with automated inhalation peak identification. (c) Synchronized acoustic decibel envelope (dBFS) with dynamic noise gating.")
 
-    add_subsection_header("B. Dynamic Motion Artifact Classification and Quality Gating")
-    add_body("To guard against gross patient motion, the framework extracts dynamic acceleration root-mean-square (RMS) and mechanical jerk metrics across a 3.0-second sliding window. When dynamic RMS exceeds 0.40 m/s², rate estimation is immediately gated to prevent motion-induced false alarms.")
+    add_subsection_header("B. Dynamic Acoustic Noise Gate and Signal Quality Index")
+    add_body("Near-field microphone streams are sampled at 16.0 kHz. The adaptive decibel envelope is computed via:")
+    add_eq("eq3")
+    add_body("The composite Signal Quality Index incorporates spectral energy concentration:")
+    add_eq("eq4")
+    add_body("combined with kurtosis and skewness:")
+    add_eq("eq5")
+
+    add_subsection_header("C. Dynamic Motion Classification and Adaptive Fusion")
+    add_body("Dynamic acceleration root-mean-square (RMS) is computed over 3.0-second sliding windows:")
+    add_eq("eq6")
     add_fig("fig4_sqi_motion.png", "Fig. 3. Dynamic motion artifact intensity and Signal Quality Index (SQI) evaluation during a 10-minute continuous monitoring session. Real-time acceleration RMS tracking stationary rest, speech transients, coughing bursts, and postural changes, with immediate gating activation at 0.40 m/s².")
 
-    add_subsection_header("C. Physical Sensor Bandwidth Limitations & Crepitation Proof")
-    add_body("By the Nyquist-Shannon sampling theorem, a discrete sensor sampled at rate fs can only reconstruct frequency components strictly below its Nyquist frequency f_Nyq = fs / 2. For smartphone IMUs operating at fs = 50.0 Hz, the physical upper bandwidth is strictly 25.0 Hz. Because clinical acoustic crackles occupy 200 Hz to 1,200 Hz, accelerometer-only crackle diagnosis represents a physical impossibility. RespiraSense AI formally restricts adventitious sound analysis to high-rate acoustic channels with explicit non-diagnostic disclosures.")
+    add_body("Candidate rate estimates are weighted based on instantaneous SQI and motion gating:")
+    add_eq("eq7")
+    add_body("yielding the final fused rate:")
+    add_eq("eq8")
+
+    add_subsection_header("D. Sensor Bandwidth Limitations & Crepitation Proof")
+    add_body("By the Nyquist theorem, accelerometer sampling at 50 Hz yields:")
+    add_eq("eq9")
+    add_body("whereas clinical acoustic crackles occupy 200 Hz to 1,200 Hz:")
+    add_eq("eq10")
     add_fig("fig5_crepitation.png", "Fig. 4. Physical sensor bandwidth boundary proof for adventitious lung sound detection, demonstrating complete frequency incompatibility between accelerometer sampling and the clinical crackle spectrum.")
 
     # Section V
@@ -263,7 +292,7 @@ def build_docx_paper():
     doc.save(OUTPUT_DOCX)
     import shutil
     shutil.copyfile(OUTPUT_DOCX, ROOT_OUTPUT_DOCX)
-    print("DOCX generated successfully at:", OUTPUT_DOCX)
+    print("DOCX updated successfully at:", OUTPUT_DOCX)
 
 
 if __name__ == "__main__":

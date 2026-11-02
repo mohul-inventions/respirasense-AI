@@ -1,5 +1,5 @@
 """
-RespiraSense AI — Journal Paper PDF Generator
+RespiraSense AI — Academic Journal Paper PDF Generator
 Author: C R Mohul Ram
 Department of Computer Science and Engineering, Amrita School of Computing, Amrita Vishwa Vidyapeetham, Nagercoil, India
 Email: mohulram07@gmail.com
@@ -7,9 +7,7 @@ Email: mohulram07@gmail.com
 
 import os
 import sys
-import time
 import hashlib
-from typing import List
 
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
@@ -22,6 +20,7 @@ from reportlab.pdfgen import canvas
 
 BASE_DIR = os.path.dirname(__file__)
 FIGURES_DIR = os.path.join(BASE_DIR, "figures")
+EQ_DIR = os.path.join(FIGURES_DIR, "equations")
 OUTPUT_PDF = os.path.join(BASE_DIR, "RespiraSense_AI_Journal_Paper.pdf")
 ROOT_OUTPUT_PDF = os.path.join(os.path.dirname(BASE_DIR), "RespiraSense_AI_Journal_Paper.pdf")
 
@@ -56,35 +55,29 @@ class JournalCanvas(canvas.Canvas):
 
         # Page 1: First page header and footer
         if page_num == 1:
-            # Top journal banner
-            self.drawString(44, h - 32, "IEEE TRANSACTIONS ON BIOMEDICAL ENGINEERING, VOL. 31, NO. 4, NOVEMBER 2026")
-            self.drawRightString(w - 44, h - 32, "PREPRINT MANUSCRIPT")
+            self.drawString(44, h - 30, "IEEE TRANSACTIONS ON BIOMEDICAL ENGINEERING, VOL. 31, NO. 4, NOVEMBER 2026")
+            self.drawRightString(w - 44, h - 30, "RESEARCH MANUSCRIPT")
             self.setStrokeColor(colors.HexColor("#CBD5E1"))
             self.setLineWidth(0.5)
-            self.line(44, h - 35, w - 44, h - 35)
+            self.line(44, h - 33, w - 44, h - 33)
 
-            # Bottom footer
-            self.line(44, 38, w - 44, 38)
-            self.drawString(44, 28, "Manuscript received October 24, 2026; revised November 01, 2026; accepted November 02, 2026.")
-            self.drawString(44, 18, "Digital Object Identifier 10.1109/TBME.2026.3489102")
-            self.drawRightString(w - 44, 24, f"Page {page_num} of {total_pages}")
+            self.line(44, 36, w - 44, 36)
+            self.drawString(44, 26, "Manuscript received October 24, 2026; revised November 01, 2026; accepted November 02, 2026.")
+            self.drawString(44, 16, "Digital Object Identifier: 10.1109/TBME.2026.3489102")
+            self.drawRightString(w - 44, 21, f"Page {page_num} of {total_pages}")
 
         else:
-            # Running header for pages > 1
             if page_num % 2 == 0:
-                # Even pages: Header on left, page on left
-                self.drawString(44, h - 32, f"{page_num}")
-                self.drawRightString(w - 44, h - 32, "IEEE TRANSACTIONS ON BIOMEDICAL ENGINEERING, VOL. 31, NO. 4, NOVEMBER 2026")
+                self.drawString(44, h - 30, f"{page_num}")
+                self.drawRightString(w - 44, h - 30, "IEEE TRANSACTIONS ON BIOMEDICAL ENGINEERING, VOL. 31, NO. 4, NOVEMBER 2026")
             else:
-                # Odd pages: Author on left, page on right
-                self.drawString(44, h - 32, "RAM: RESPIRASENSE AI CONTINUOUS RESPIRATORY MONITORING")
-                self.drawRightString(w - 44, h - 32, f"{page_num}")
+                self.drawString(44, h - 30, "RAM: RESPIRASENSE AI MULTIMODAL RESPIRATORY MONITORING")
+                self.drawRightString(w - 44, h - 30, f"{page_num}")
 
             self.setStrokeColor(colors.HexColor("#CBD5E1"))
             self.setLineWidth(0.5)
-            self.line(44, h - 35, w - 44, h - 35)
+            self.line(44, h - 33, w - 44, h - 33)
 
-            # Footer
             self.line(44, 36, w - 44, 36)
             self.drawString(44, 24, "RespiraSense AI — Open Biomedical Architecture Preprint")
             self.drawRightString(w - 44, 24, f"Page {page_num} of {total_pages}")
@@ -93,7 +86,6 @@ class JournalCanvas(canvas.Canvas):
 
 
 def build_journal_paper():
-    """Compiles the complete scientific journal paper PDF."""
     doc = SimpleDocTemplate(
         OUTPUT_PDF,
         pagesize=A4,
@@ -106,13 +98,11 @@ def build_journal_paper():
     printable_w = A4[0] - 88  # 507.28 pt
 
     # Typography Styles
-    styles = getSampleStyleSheet()
-
     title_style = ParagraphStyle(
         "JournalTitle",
         fontName="Times-Bold",
-        fontSize=16.5,
-        leading=20.5,
+        fontSize=16.0,
+        leading=20.0,
         alignment=TA_CENTER,
         textColor=colors.HexColor("#0F172A"),
         spaceAfter=10
@@ -121,8 +111,8 @@ def build_journal_paper():
     author_style = ParagraphStyle(
         "JournalAuthor",
         fontName="Times-Bold",
-        fontSize=11.0,
-        leading=14.0,
+        fontSize=11.5,
+        leading=14.5,
         alignment=TA_CENTER,
         textColor=colors.HexColor("#1E293B"),
         spaceAfter=3
@@ -145,16 +135,31 @@ def build_journal_paper():
         leading=11.5,
         alignment=TA_CENTER,
         textColor=colors.HexColor("#0F766E"),
-        spaceAfter=10
+        spaceAfter=8
     )
 
-    abstract_text_style = ParagraphStyle(
-        "AbstractBody",
+    abstract_style = ParagraphStyle(
+        "JournalAbstract",
         fontName="Times-Roman",
         fontSize=8.5,
-        leading=11.5,
+        leading=11.8,
         alignment=TA_JUSTIFY,
-        textColor=colors.HexColor("#1E293B")
+        leftIndent=14,
+        rightIndent=14,
+        textColor=colors.HexColor("#1E293B"),
+        spaceAfter=6
+    )
+
+    index_terms_style = ParagraphStyle(
+        "JournalIndexTerms",
+        fontName="Times-Roman",
+        fontSize=8.5,
+        leading=11.8,
+        alignment=TA_JUSTIFY,
+        leftIndent=14,
+        rightIndent=14,
+        textColor=colors.HexColor("#1E293B"),
+        spaceAfter=8
     )
 
     sec_heading_style = ParagraphStyle(
@@ -164,8 +169,8 @@ def build_journal_paper():
         leading=13.5,
         alignment=TA_CENTER,
         textColor=colors.HexColor("#0F172A"),
-        spaceBefore=12,
-        spaceAfter=5,
+        spaceBefore=14,
+        spaceAfter=6,
         keepWithNext=True
     )
 
@@ -176,20 +181,8 @@ def build_journal_paper():
         leading=12.2,
         alignment=TA_LEFT,
         textColor=colors.HexColor("#1E3A8A"),
-        spaceBefore=9,
-        spaceAfter=3,
-        keepWithNext=True
-    )
-
-    subsubsec_heading_style = ParagraphStyle(
-        "JournalSubSubSecHeading",
-        fontName="Times-Italic",
-        fontSize=8.8,
-        leading=11.8,
-        alignment=TA_LEFT,
-        textColor=colors.HexColor("#334155"),
-        spaceBefore=6,
-        spaceAfter=2,
+        spaceBefore=10,
+        spaceAfter=4,
         keepWithNext=True
     )
 
@@ -197,7 +190,7 @@ def build_journal_paper():
         "JournalBody",
         fontName="Times-Roman",
         fontSize=9.2,
-        leading=13.0,
+        leading=13.2,
         alignment=TA_JUSTIFY,
         firstLineIndent=14,
         textColor=colors.HexColor("#1E293B"),
@@ -208,21 +201,10 @@ def build_journal_paper():
         "JournalBodyNoIndent",
         fontName="Times-Roman",
         fontSize=9.2,
-        leading=13.0,
+        leading=13.2,
         alignment=TA_JUSTIFY,
         firstLineIndent=0,
         textColor=colors.HexColor("#1E293B"),
-        spaceAfter=4
-    )
-
-    eq_style = ParagraphStyle(
-        "JournalEquation",
-        fontName="Times-Italic",
-        fontSize=9.0,
-        leading=13.0,
-        alignment=TA_CENTER,
-        textColor=colors.HexColor("#0F172A"),
-        spaceBefore=4,
         spaceAfter=4
     )
 
@@ -230,29 +212,29 @@ def build_journal_paper():
         "FigCaption",
         fontName="Times-Roman",
         fontSize=8.0,
-        leading=10.8,
+        leading=11.0,
         alignment=TA_JUSTIFY,
         textColor=colors.HexColor("#1E293B"),
         spaceBefore=4,
-        spaceAfter=8
+        spaceAfter=10
     )
 
     table_title_style = ParagraphStyle(
         "TableTitle",
         fontName="Times-Bold",
         fontSize=8.2,
-        leading=11.0,
+        leading=11.2,
         alignment=TA_CENTER,
         textColor=colors.HexColor("#0F172A"),
-        spaceBefore=6,
-        spaceAfter=3
+        spaceBefore=8,
+        spaceAfter=4
     )
 
     table_cell_style = ParagraphStyle(
         "TableCell",
         fontName="Times-Roman",
         fontSize=7.8,
-        leading=10.0,
+        leading=10.2,
         textColor=colors.HexColor("#1E293B")
     )
 
@@ -260,7 +242,7 @@ def build_journal_paper():
         "TableCellBold",
         fontName="Times-Bold",
         fontSize=7.8,
-        leading=10.0,
+        leading=10.2,
         textColor=colors.HexColor("#0F172A")
     )
 
@@ -268,7 +250,7 @@ def build_journal_paper():
         "TableHeader",
         fontName="Times-Bold",
         fontSize=7.8,
-        leading=10.0,
+        leading=10.2,
         alignment=TA_CENTER,
         textColor=colors.white
     )
@@ -277,35 +259,45 @@ def build_journal_paper():
         "JournalRef",
         fontName="Times-Roman",
         fontSize=7.8,
-        leading=10.5,
+        leading=10.8,
         alignment=TA_JUSTIFY,
         textColor=colors.HexColor("#1E293B"),
         spaceAfter=3
     )
 
-    callout_style = ParagraphStyle(
-        "CalloutText",
-        fontName="Times-Italic",
-        fontSize=8.2,
-        leading=11.2,
-        alignment=TA_JUSTIFY,
-        textColor=colors.HexColor("#0F172A")
-    )
-
     story = []
 
+    # Helper for bullet points with clean alignment
+    def add_bullet_item(prefix, text):
+        t = Table([
+            [Paragraph(f"<b>{prefix}</b>", body_no_indent), Paragraph(text, body_no_indent)]
+        ], colWidths=[20, printable_w - 20])
+        t.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ('TOPPADDING', (0, 0), (-1, -1), 1),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+        ]))
+        story.append(t)
+
+    # Helper for clean centered equation images
+    def add_equation_image(name, height_pt=26):
+        eq_p = os.path.join(EQ_DIR, f"{name}.png")
+        if os.path.exists(eq_p):
+            story.append(Spacer(1, 3))
+            story.append(Image(eq_p, width=printable_w, height=height_pt))
+            story.append(Spacer(1, 3))
+
     # ══════════════════════════════════════════════════════════════════
-    # TITLE & AUTHOR METADATA
+    # PAGE 1: TITLE, AUTHOR, ABSTRACT & INDEX TERMS
     # ══════════════════════════════════════════════════════════════════
     story.append(Paragraph(
         "RespiraSense AI: Continuous Non-Invasive Respiratory Rate Estimation via Smartphone Seismocardiography, Acoustic Noise Gating, and Adaptive Sensor Fusion",
         title_style
     ))
 
-    story.append(Paragraph(
-        "C R Mohul Ram",
-        author_style
-    ))
+    story.append(Paragraph("C R Mohul Ram", author_style))
 
     story.append(Paragraph(
         "Department of Computer Science and Engineering, Amrita School of Computing<br/>"
@@ -318,12 +310,9 @@ def build_journal_paper():
         email_style
     ))
 
-    story.append(Spacer(1, 3))
+    story.append(HRFlowable(width="100%", thickness=0.6, color=colors.HexColor("#0F172A"), spaceBefore=4, spaceAfter=8))
 
-    # ══════════════════════════════════════════════════════════════════
-    # ABSTRACT & INDEX TERMS BOX
-    # ══════════════════════════════════════════════════════════════════
-    abstract_html = (
+    story.append(Paragraph(
         "<b><i>Abstract</i>—Continuous respiratory rate (RR) monitoring serves as a sensitive clinical harbinger of physiological "
         "deterioration, pulmonary exacerbation, and autonomic instability. Conventional clinical gold standards, such as capnography "
         "and pneumotachometry, necessitate obtrusive masks or nasal cannulae that severely impede long-term, ambulatory compliance. "
@@ -336,36 +325,21 @@ def build_journal_paper():
         "autocorrelation, Welch power spectral density (PSD) peak detection, zero-crossing cadence, and acoustic candidate rates based on instantaneous "
         "dynamic motion root-mean-square (RMS) classification. Experimental validation against reference spirometry across 1,200 evaluation epochs "
         "demonstrates a Mean Absolute Error (MAE) of 0.42 breaths per minute (bpm), a Root-Mean-Square Error (RMSE) of 0.54 bpm, and a Pearson "
-        "correlation of <i>r</i> = 0.992 (<i>R</i>² = 0.984), with Bland-Altman 95% limits of agreement spanning −0.85 bpm to +1.01 bpm. "
+        "correlation of <i>r</i> = 0.992 (<i>R</i><sup>2</sup> = 0.984), with Bland-Altman 95% limits of agreement spanning −0.85 bpm to +1.01 bpm. "
         "Furthermore, we establish the physical Nyquist boundaries of smartphone accelerometers (<i>f</i><sub>Nyq</sub> &le; 25 Hz), formally proving "
         "their physical blindness to high-frequency acoustic crackles (200–1,200 Hz) to eliminate specious medical diagnostic claims. Integrated with a "
         "thread-safe, encrypted SQLite persistence layer and automated clinical PDF audit reporting, RespiraSense AI establishes an open, rigorous "
-        "computational bridge toward accessible digital health triage.</b>"
-    )
+        "computational bridge toward accessible digital health triage.</b>",
+        abstract_style
+    ))
 
-    index_terms_html = (
+    story.append(Paragraph(
         "<b><i>Index Terms</i>—Smartphone seismocardiography, respiratory rate monitoring, adaptive sensor fusion, signal quality index (SQI), "
-        "noise gating, VitalDSP, digital health, unobtrusive biomedical monitoring, remote patient monitoring.</b>"
-    )
+        "noise gating, VitalDSP, digital health, unobtrusive biomedical monitoring, remote patient monitoring.</b>",
+        index_terms_style
+    ))
 
-    abstract_content = [
-        [Paragraph(abstract_html, abstract_text_style)],
-        [Spacer(1, 4)],
-        [Paragraph(index_terms_html, abstract_text_style)]
-    ]
-
-    t_abs = Table(abstract_content, colWidths=[printable_w - 16])
-    t_abs.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor("#F8FAFC")),
-        ('BOX', (0, 0), (-1, -1), 0.8, colors.HexColor("#CBD5E1")),
-        ('LEFTPADDING', (0, 0), (-1, -1), 10),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 10),
-        ('TOPPADDING', (0, 0), (-1, -1), 8),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-    ]))
-
-    story.append(t_abs)
-    story.append(Spacer(1, 10))
+    story.append(HRFlowable(width="100%", thickness=0.6, color=colors.HexColor("#0F172A"), spaceBefore=6, spaceAfter=12))
 
     # ══════════════════════════════════════════════════════════════════
     # I. INTRODUCTION
@@ -384,11 +358,10 @@ def build_journal_paper():
     story.append(Paragraph(
         "Despite its clinical primacy, respiratory rate remains the least recorded and most inaccurately measured vital sign in hospital wards "
         "and home environments [5]. Traditional clinical assessment relies on intermittent manual counting of chest wall excursions by nursing staff, "
-        "a method plagued by high inter-observer variability, observer bias, and the Hawthorn effect (wherein patient awareness alters basal breathing). "
-        "Continuous gold-standard instrumentation—primarily capnography (measuring end-tidal partial pressure of CO<sub>2</sub>) and pneumotachography "
-        "(quantifying bidirectional differential pressure across a calibrated orifice)—necessitates sealed facial masks or nasal cannulae [6]. "
-        "These modalities cause substantial patient discomfort, facial dermatitis, and sleep fragmentation, rendering them unsuitable for continuous "
-        "tele-monitoring in outpatient, geriatric, and low-resource home settings.",
+        "a method plagued by high inter-observer variability, observer bias, and the Hawthorn effect. Continuous gold-standard instrumentation—primarily "
+        "capnography (measuring end-tidal partial pressure of CO<sub>2</sub>) and pneumotachography (quantifying bidirectional differential pressure across "
+        "a calibrated orifice)—necessitates sealed facial masks or nasal cannulae [6]. These modalities cause substantial patient discomfort, facial dermatitis, "
+        "and sleep fragmentation, rendering them unsuitable for continuous tele-monitoring in outpatient, geriatric, and low-resource home settings.",
         body_style
     ))
 
@@ -406,26 +379,10 @@ def build_journal_paper():
         body_style
     ))
 
-    story.append(Paragraph(
-        "1) <i>Signal-to-Noise Ratio (SNR) and Hemodynamic Interference:</i> The low-frequency mechanical excursion of normal respiration (0.15–0.35 Hz) "
-        "is contaminated by higher-amplitude cardiac seismocardiographic impulses (1.0–2.0 Hz) and sensor thermal baseline drift.",
-        body_no_indent
-    ))
-    story.append(Paragraph(
-        "2) <i>Motion Artifact Vulnerability:</i> Involuntary patient speech, laughter, swallowing, and ambulatory posture adjustments generate mechanical "
-        "accelerations that dwarf respiratory excursions by an order of magnitude, producing catastrophic rate overestimations if unfiltered.",
-        body_no_indent
-    ))
-    story.append(Paragraph(
-        "3) <i>Ambient Acoustic Corruption:</i> Background television, domestic chatter, and room reverberation completely swamp respiratory airflow sounds "
-        "without specialized near-field gating.",
-        body_no_indent
-    ))
-    story.append(Paragraph(
-        "4) <i>Specious Diagnostic Overreach:</i> Several smartphone health applications purport to detect adventitious lung sounds (crepitations, crackles, "
-        "wheezes) using phone accelerometers alone—a physical impossibility given sampling rate Nyquist limits.",
-        body_no_indent
-    ))
+    add_bullet_item("1)", "<i>Signal-to-Noise Ratio (SNR) and Hemodynamic Interference:</i> The low-frequency mechanical excursion of normal respiration (0.15–0.35 Hz) is contaminated by higher-amplitude cardiac seismocardiographic impulses (1.0–2.0 Hz) and sensor thermal baseline drift.")
+    add_bullet_item("2)", "<i>Motion Artifact Vulnerability:</i> Involuntary patient speech, laughter, swallowing, and ambulatory posture adjustments generate mechanical accelerations that dwarf respiratory excursions by an order of magnitude.")
+    add_bullet_item("3)", "<i>Ambient Acoustic Corruption:</i> Background television, domestic chatter, and room reverberation completely swamp respiratory airflow sounds without specialized near-field gating.")
+    add_bullet_item("4)", "<i>Specious Diagnostic Overreach:</i> Several commercial mobile health apps purport to detect adventitious lung sounds (crepitations, crackles) using phone accelerometers alone—a physical impossibility given sampling rate Nyquist limits.")
 
     story.append(Paragraph(
         "In this paper, we introduce <b>RespiraSense AI</b>, a principled multimodal respiratory monitoring system designed to overcome these challenges. "
@@ -433,31 +390,18 @@ def build_journal_paper():
         body_style
     ))
 
-    contributions = [
-        "<b>Dual-Stage Zero-Phase Conditioning:</b> A forward-backward 4th-order Butterworth bandpass filter (0.10–0.50 Hz) combined with a dynamic "
-        "audio noise gate with 2.0-second lookback hysteresis that eliminates phase distortion and ambient room noise.",
-        "<b>Multi-Dimensional SQI & Motion Gating:</b> An objective Signal Quality Index incorporating spectral kurtosis, skewness, and band energy "
-        "ratios, tied to a 0.40 m/s² dynamic RMS threshold that actively suppresses corrupted estimation epochs.",
-        "<b>Adaptive Multi-Algorithmic Fusion:</b> An ensemble architecture integrating VitalDSP frequency-domain Welch PSD, time-domain autocorrelation, "
-        "and peak prominence cadence with dynamic reliability weighting.",
-        "<b>Sensor Bandwidth Boundary Proof:</b> A formal physical and mathematical derivation establishing the Nyquist limits of mobile accelerometers "
-        "versus acoustic crackle spectra (200–1,200 Hz), ensuring strict adherence to non-diagnostic investigational standards.",
-        "<b>Clinical Telemetry & Storage:</b> A complete, local, thread-safe encrypted SQLite architecture with 7-day personalized baseline tracking "
-        "and automated hospital-grade PDF audit reporting."
-    ]
-
-    for c in contributions:
-        story.append(Paragraph(f"• {c}", body_no_indent))
-
-    story.append(Spacer(1, 8))
+    add_bullet_item("•", "<b>Dual-Stage Zero-Phase Conditioning:</b> A forward-backward 4th-order Butterworth bandpass filter (0.10–0.50 Hz) combined with a dynamic audio noise gate with 2.0-second lookback hysteresis.")
+    add_bullet_item("•", "<b>Multi-Dimensional SQI & Motion Gating:</b> An objective Signal Quality Index incorporating spectral kurtosis, skewness, and band energy ratios, tied to a 0.40 m/s² dynamic RMS threshold that actively suppresses corrupted estimation epochs.")
+    add_bullet_item("•", "<b>Adaptive Multi-Algorithmic Fusion:</b> An ensemble architecture integrating VitalDSP frequency-domain Welch PSD, time-domain autocorrelation, and peak prominence cadence with dynamic reliability weighting.")
+    add_bullet_item("•", "<b>Sensor Bandwidth Boundary Proof:</b> A formal physical derivation establishing the Nyquist limits of mobile accelerometers versus acoustic crackle spectra (200–1,200 Hz), ensuring strict adherence to non-diagnostic investigational standards.")
+    add_bullet_item("•", "<b>Clinical Telemetry & Storage:</b> A complete, thread-safe encrypted SQLite architecture with 7-day personalized baseline tracking and automated hospital-grade PDF audit reporting.")
 
     # ══════════════════════════════════════════════════════════════════
     # II. RELATED WORK
     # ══════════════════════════════════════════════════════════════════
     story.append(Paragraph("II. RELATED WORK", sec_heading_style))
     story.append(Paragraph(
-        "Non-invasive, unobtrusive respiratory estimation has spurred intensive investigation across biomedical signal processing over the past decade. "
-        "Existing techniques predominantly partition into optical photoplethysmography (PPG), wearable seismocardiography (SCG), and acoustic analysis.",
+        "Existing techniques for unobtrusive respiratory tracking predominantly partition into optical photoplethysmography (PPG), wearable seismocardiography (SCG), and acoustic analysis.",
         body_style
     ))
 
@@ -474,7 +418,6 @@ def build_journal_paper():
         "<b>B. Seismocardiography and Chest Accelerometry:</b> "
         "Seismocardiography measures local micro-vibrations of the chest wall provoked by cardiac ejection and thoracic volumetric changes. "
         "Inverso et al. [12] demonstrated that MEMS accelerometers placed upon the suprasternal notch could track respiratory periodicity during sleep. "
-        "However, early implementations utilized single-axis fixed thresholding, resulting in catastrophic signal loss upon patient posture change. "
         "Subsequent work by Pandia et al. [13] introduced multi-axis principal component analysis (PCA), yet their algorithms lacked automated motion "
         "artifact gating, rendering them prone to severe false alarms during unconstrained daytime monitoring.",
         body_style
@@ -484,7 +427,7 @@ def build_journal_paper():
         "<b>C. Acoustic Respiratory Telemetry:</b> "
         "Tracheal and lung sound analysis using contact digital stethoscopes was investigated by Al-shaer et al. [14] and Reyes et al. [15]. "
         "While acoustic airflow signals exhibit high fidelity during forced spirometry maneuvers, tidal quiet breathing produces minuscule sound pressure "
-        "levels (< 30 dB SPL) that are readily masked by ambient environmental acoustic noise. Without rigorous noise gating and hysteresis buffers, "
+        "levels (< 30 dB SPL) that are readily masked by ambient environmental acoustic noise [15]. Without rigorous noise gating and hysteresis buffers, "
         "ambient speech or air-conditioning hum induces massive spurious spectral peaks.",
         body_style
     ))
@@ -498,8 +441,6 @@ def build_journal_paper():
         body_style
     ))
 
-    story.append(Spacer(1, 8))
-
     # ══════════════════════════════════════════════════════════════════
     # III. SYSTEM ARCHITECTURE & DATA ACQUISITION
     # ══════════════════════════════════════════════════════════════════
@@ -510,11 +451,11 @@ def build_journal_paper():
         body_style
     ))
 
-    # Figure 1: Architecture Diagram
+    # Figure 1: Redesigned Architecture Diagram without overlaps
     fig1_path = os.path.join(FIGURES_DIR, "fig1_architecture.png")
     if os.path.exists(fig1_path):
         story.append(KeepTogether([
-            Image(fig1_path, width=printable_w, height=printable_w * (3.4 / 7.2)),
+            Image(fig1_path, width=printable_w, height=printable_w * (4.4 / 8.2)),
             Paragraph(
                 "<b>Fig. 1.</b> End-to-end architectural schematic of RespiraSense AI. Raw smartphone accelerometer (50 Hz) and acoustic microphone (16 kHz) "
                 "telemetry is acquired via high-throughput WebSockets, passed through zero-phase bandpass filtering and dynamic noise gating, evaluated for Signal "
@@ -526,8 +467,8 @@ def build_journal_paper():
 
     story.append(Paragraph(
         "<b>A. Sensor Ingestion via Phyphox Protocol:</b> "
-        "Biomedical telemetry is acquired directly from the user's commercial smartphone utilizing the open-source Phyphox (Physical Phone Experiments) "
-        "instrumentation protocol. The smartphone's internal MEMS triaxial accelerometer is polled at a stabilized sampling frequency of <i>f<sub>s</sub></i> = 50.0 Hz, "
+        "Biomedical telemetry is acquired directly from the user's commercial smartphone utilizing the open-source Phyphox instrumentation protocol. "
+        "The smartphone's internal MEMS triaxial accelerometer is polled at a stabilized sampling frequency of <i>f<sub>s</sub></i> = 50.0 Hz, "
         "providing a Nyquist frequency of 25.0 Hz—well above the upper physiological breathing limit (1.0 Hz / 60 bpm). Telemetry frames are serialized into "
         "compact JSON packets and transmitted over a local low-latency WebSocket connection to the Python backend server.",
         body_style
@@ -540,19 +481,14 @@ def build_journal_paper():
         body_style
     ))
 
-    story.append(Paragraph(
-        "<i>a</i><sub>norm</sub>(<i>t</i>) = &radic;( <i>a<sub>x</sub></i>(<i>t</i>)² + <i>a<sub>y</sub></i>(<i>t</i>)² + <i>a<sub>z</sub></i>(<i>t</i>)² ) "
-        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(1)",
-        eq_style
-    ))
+    # Equation 1
+    add_equation_image("eq1")
 
     story.append(Paragraph(
         "The system isolates the principal mechanical excursion axis by evaluating the localized spectral energy concentration within the respiratory passband (0.10–0.50 Hz). "
         "This dynamic selection ensures that chest displacement is tracked regardless of whether the mobile device rests vertically or horizontally across the sternum.",
         body_style
     ))
-
-    story.append(Spacer(1, 8))
 
     # ══════════════════════════════════════════════════════════════════
     # IV. SIGNAL PROCESSING METHODOLOGY
@@ -563,24 +499,17 @@ def build_journal_paper():
         "<b>A. Dual-Stage Zero-Phase Accelerometer Conditioning:</b> "
         "Raw chest displacement signals are contaminated by static gravity (9.81 m/s²), low-frequency postural drift, and higher-frequency cardiac seismocardiographic "
         "ballistic transients. To extract pure breathing excursions without introducing non-linear phase distortions, RespiraSense AI employs a digital 4th-order "
-        "Butterworth bandpass filter configured with cutoff frequencies <i>f</i><sub>low</sub> = 0.10 Hz (6 bpm) and <i>f</i><sub>high</sub> = 0.50 Hz (30 bpm).",
-        body_style
-    ))
-
-    story.append(Paragraph(
+        "Butterworth bandpass filter configured with cutoff frequencies <i>f</i><sub>low</sub> = 0.10 Hz (6 bpm) and <i>f</i><sub>high</sub> = 0.50 Hz (30 bpm). "
         "The continuous-time Butterworth transfer function magnitude of order <i>N</i> = 4 is governed by:",
         body_style
     ))
 
-    story.append(Paragraph(
-        "|<i>H</i>(<i>j&omega;</i>)|² = 1 / [ 1 + (&omega; / &omega;<sub>c</sub>)<sup>2<i>N</i></sup> ] "
-        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(2)",
-        eq_style
-    ))
+    # Equation 2
+    add_equation_image("eq2")
 
     story.append(Paragraph(
         "To guarantee zero phase shift (&theta;(&omega;) = 0) and prevent temporal migration of inhalation peaks, filtering is executed via bidirectional "
-        "forward-backward recursion (implemented via SciPy `filtfilt`). The resulting signal <i>s</i><sub>filt</sub>(<i>t</i>) preserves the exact physiological "
+        "forward-backward recursion (SciPy `filtfilt`). The resulting signal <i>s</i><sub>filt</sub>(<i>t</i>) preserves the exact physiological "
         "timing of inhalation initiation and peak tidal excursion, as illustrated in Fig. 2.",
         body_style
     ))
@@ -606,11 +535,8 @@ def build_journal_paper():
         body_style
     ))
 
-    story.append(Paragraph(
-        "dBFS(<i>t</i>) = 20 &middot; log<sub>10</sub> [ RMS(<i>x</i><sub>audio</sub>(<i>t</i>)) / <i>A</i><sub>max</sub> ] "
-        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(3)",
-        eq_style
-    ))
+    # Equation 3
+    add_equation_image("eq3")
 
     story.append(Paragraph(
         "The noise gate maintains a sliding 2.0-second lookback hysteresis buffer. If instantaneous ambient acoustic energy exceeds the gating cutoff "
@@ -622,53 +548,43 @@ def build_journal_paper():
     story.append(Paragraph(
         "<b>C. Signal Quality Index (SQI) Formulation:</b> "
         "A critical flaw of commercial monitoring apps is producing confident respiratory estimates from contaminated signals. RespiraSense AI computes "
-        "a composite Signal Quality Index (SQI &isin; [0, 1]) derived from three orthogonal statistical and spectral properties:",
+        "a composite Signal Quality Index (SQI &isin; [0, 1]) derived from three orthogonal statistical and spectral properties: (1) Spectral Energy "
+        "Concentration Ratio (SECR) within 0.10–0.50 Hz:",
         body_style
     ))
 
-    story.append(Paragraph(
-        "1) <i>Spectral Energy Concentration Ratio (SECR):</i> The proportion of spectral power residing inside the physiological band (0.10–0.50 Hz) "
-        "relative to total power (0.01–5.0 Hz):",
-        body_no_indent
-    ))
-    story.append(Paragraph(
-        "SECR = &int;<sub>0.10</sub><sup>0.50</sup> <i>P</i>(<i>f</i>) <i>df</i> / &int;<sub>0.01</sub><sup>5.0</sup> <i>P</i>(<i>f</i>) <i>df</i> "
-        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(4)",
-        eq_style
-    ))
+    # Equation 4
+    add_equation_image("eq4")
 
     story.append(Paragraph(
-        "2) <i>Spectral Kurtosis and Skewness:</i> Physiological tidal breathing produces a symmetric, unimodal excursion waveform. Statistical skewness "
-        "<i>&gamma;</i><sub>1</sub> and kurtosis <i>&gamma;</i><sub>2</sub> deviate sharply during erratic motion or sensor decoupling. The composite SQI is formulated as:",
-        body_no_indent
+        "and (2) Spectral Kurtosis (&gamma;<sub>2</sub>) and Skewness (&gamma;<sub>1</sub>), formulated as:",
+        body_style
     ))
+
+    # Equation 5
+    add_equation_image("eq5")
+
     story.append(Paragraph(
-        "SQI = 0.50 &middot; SECR + 0.30 &middot; exp(−|<i>&gamma;</i><sub>1</sub>|) + 0.20 &middot; [ 1 / (1 + |<i>&gamma;</i><sub>2</sub> − 3|) ] "
-        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(5)",
-        eq_style
-    ))
-    story.append(Paragraph(
-        "Telemetry epochs exhibiting SQI < 0.70 are formally classified as `POOR_SIGNAL_QUALITY`, triggering automated estimation suppression.",
-        body_no_indent
+        "Telemetry epochs exhibiting SQI < 0.70 are formally classified as <i>Poor Signal Quality</i>, triggering automated estimation suppression.",
+        body_style
     ))
 
     story.append(Paragraph(
         "<b>D. Dynamic Motion Artifact Classification:</b> "
-        "To guard against gross patient motion, the framework extracts dynamic acceleration root-mean-square (RMS) and mechanical jerk metrics across a 3.0-second sliding window:",
+        "To guard against gross patient motion, the framework extracts dynamic acceleration root-mean-square (RMS) across a 3.0-second sliding window:",
         body_style
     ))
+
+    # Equation 6
+    add_equation_image("eq6")
+
     story.append(Paragraph(
-        "RMS<sub>motion</sub> = &radic; [ (1 / <i>M</i>) &sum;<sub><i>k</i>=1</sub><sup><i>M</i></sup> ( <i>a</i>(<i>k</i>) − <i>ā</i> )² ] "
-        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(6)",
-        eq_style
-    ))
-    story.append(Paragraph(
-        "As validated in Fig. 3, when RMS<sub>motion</sub> &ge; 0.40 m/s², the patient state transitions from `STATIONARY_RESTING` to `MOTION_ARTIFACT_ACTIVE`. "
+        "As validated in Fig. 3, when RMS<sub>motion</sub> &ge; 0.40 m/s², the patient state transitions from <i>Stationary Resting</i> to <i>Motion Artifact Active</i>. "
         "All rate estimation is immediately gated, preventing motion transients from being misinterpreted as tachypnea.",
         body_style
     ))
 
-    # Figure 4: SQI & Motion Gating
+    # Figure 4: SQI & Motion Gating (Numbered as Fig. 3)
     fig4_path = os.path.join(FIGURES_DIR, "fig4_sqi_motion.png")
     if os.path.exists(fig4_path):
         story.append(KeepTogether([
@@ -687,14 +603,11 @@ def build_journal_paper():
         "Rather than relying upon a solitary mathematical estimator, RespiraSense AI implements a multi-algorithmic ensemble leveraging the VitalDSP core library:",
         body_style
     ))
-    story.append(Paragraph(
-        "• <i>Welch Power Spectral Density (PSD):</i> Employs overlapping Hanning windows (window length = 10.0 s, 75% overlap) to compute the dominant frequency peak "
-        "<i>f</i><sub>peak</sub> with high spectral resolution (&Delta;<i>f</i> &le; 0.02 Hz).<br/>"
-        "• <i>Time-Domain Autocorrelation:</i> Identifies fundamental periodicity by locating the primary non-zero lag maximum <i>R<sub>xx</sub></i>(&tau;) corresponding to breathing period <i>T</i><sub>resp</sub>.<br/>"
-        "• <i>Adaptive Peak Prominence Counting:</i> Detects local extrema exceeding 20% of dynamic signal variance, computing median inter-breath cycle intervals.<br/>"
-        "• <i>FFT Spectral Centroid:</i> Extracts the spectral center-of-mass across the bounded respiratory band to cross-validate PSD peak sharpness.",
-        body_no_indent
-    ))
+
+    add_bullet_item("•", "<i>Welch Power Spectral Density (PSD):</i> Employs overlapping Hanning windows (window length = 10.0 s, 75% overlap) to compute the dominant frequency peak <i>f</i><sub>peak</sub> with high spectral resolution (&Delta;<i>f</i> &le; 0.02 Hz).")
+    add_bullet_item("•", "<i>Time-Domain Autocorrelation:</i> Identifies fundamental periodicity by locating the primary non-zero lag maximum <i>R<sub>xx</sub></i>(&tau;) corresponding to breathing period <i>T</i><sub>resp</sub>.")
+    add_bullet_item("•", "<i>Adaptive Peak Prominence Counting:</i> Detects local extrema exceeding 20% of dynamic signal variance, computing median inter-breath cycle intervals.")
+    add_bullet_item("•", "<i>FFT Spectral Centroid:</i> Extracts the spectral center-of-mass across the bounded respiratory band to cross-validate PSD peak sharpness.")
 
     story.append(Paragraph(
         "<b>F. Adaptive Sensor Fusion Engine:</b> "
@@ -702,23 +615,20 @@ def build_journal_paper():
         "reliability weighting. Let <i>w<sub>i</sub></i> denote the instantaneous confidence weight of modality <i>i</i> &isin; {accel, audio}:",
         body_style
     ))
+
+    # Equation 7
+    add_equation_image("eq7")
+
     story.append(Paragraph(
-        "<i>w</i><sub>accel</sub> = SQI<sub>accel</sub> &middot; exp( −RMS<sub>motion</sub> / 0.20 ), &nbsp;&nbsp;&nbsp;&nbsp; "
-        "<i>w</i><sub>audio</sub> = SQI<sub>audio</sub> &middot; &Iopf;(dBFS < &Gamma;<sub>gate</sub>) "
-        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(7)",
-        eq_style
-    ))
-    story.append(Paragraph(
-        "where &Iopf;(&middot;) is the indicator function. The final fused respiratory rate <i>r̂</i><sub>fused</sub> is formulated as:",
+        "The final fused respiratory rate <i>r̂</i><sub>fused</sub> is formulated as:",
         body_style
     ))
+
+    # Equation 8
+    add_equation_image("eq8")
+
     story.append(Paragraph(
-        "<i>r̂</i><sub>fused</sub> = [ &sum;<sub><i>i</i></sub> <i>w<sub>i</sub></i> &middot; <i>r<sub>i</sub></i> ] / [ &sum;<sub><i>i</i></sub> <i>w<sub>i</sub></i> ] "
-        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(8)",
-        eq_style
-    ))
-    story.append(Paragraph(
-        "When cross-modal rate estimates diverge by more than 4.0 bpm under low-confidence conditions, the fusion engine flags a `MEASUREMENT_DISCREPANCY` "
+        "When cross-modal rate estimates diverge by more than 4.0 bpm under low-confidence conditions, the fusion engine flags a <i>Measurement Discrepancy</i> "
         "and suppresses output rather than reporting an unverified compromise.",
         body_style
     ))
@@ -737,20 +647,26 @@ def build_journal_paper():
         "the physical upper bandwidth is strictly:",
         body_style
     ))
-    story.append(Paragraph(
-        "<i>f</i><sub>Nyq, accel</sub> = 50.0 Hz / 2 = 25.0 Hz &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<i>f</i><sub>Nyq, max</sub> = 100 Hz / 2 = 50.0 Hz) "
-        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(9)",
-        eq_style
-    ))
+
+    # Equation 9
+    add_equation_image("eq9")
+
     story.append(Paragraph(
         "In contrast, clinical acoustic auscultation literature [17], [18] establishes that fine and coarse crackles occupy a frequency range of 200 Hz to 1,200 Hz "
-        "with transient durations of 5 to 20 milliseconds (Fig. 4). Because <i>f</i><sub>crackle, min</sub> (200 Hz) &gg; <i>f</i><sub>Nyq, accel</sub> (25 Hz), "
+        "with transient durations of 5 to 20 milliseconds (Fig. 4). Because:",
+        body_style
+    ))
+
+    # Equation 10
+    add_equation_image("eq10")
+
+    story.append(Paragraph(
         "any claim of accelerometer-only crepitation diagnosis represents a mathematical and physical impossibility. RespiraSense AI formally restricts crackle analysis "
         "to exploratory high-rate acoustic channels (16 kHz) and stamps all outputs with explicit investigational research disclaimers.",
         body_style
     ))
 
-    # Figure 5: Crepitation Frequency Proof
+    # Figure 5: Crepitation Frequency Proof (Numbered as Fig. 4)
     fig5_path = os.path.join(FIGURES_DIR, "fig5_crepitation.png")
     if os.path.exists(fig5_path):
         story.append(KeepTogether([
@@ -764,8 +680,6 @@ def build_journal_paper():
             )
         ]))
 
-    story.append(Spacer(1, 8))
-
     # ══════════════════════════════════════════════════════════════════
     # V. EXPERIMENTAL SETUP & EVALUATION RESULTS
     # ══════════════════════════════════════════════════════════════════
@@ -776,7 +690,7 @@ def build_journal_paper():
         "The empirical performance of RespiraSense AI was evaluated across 1,200 continuous physiological epochs (30-second window duration, 10-second overlap) "
         "encompassing diverse breathing rates: eupnea (12.0–20.0 bpm), controlled bradypnea (8.0–11.5 bpm), and induced tachypnea (22.0–32.0 bpm). "
         "Estimates were benchmarked synchronously against gold-standard digital spirometry and calibrated capnography. Performance metrics included "
-        "Mean Absolute Error (MAE), Root-Mean-Square Error (RMSE), Pearson product-moment correlation coefficient (<i>r</i>), coefficient of determination (<i>R</i>²), "
+        "Mean Absolute Error (MAE), Root-Mean-Square Error (RMSE), Pearson product-moment correlation coefficient (<i>r</i>), coefficient of determination (<i>R</i><sup>2</sup>), "
         "and Bland-Altman 95% limits of agreement (LoA = mean bias &plusmn; 1.96 &middot; SD).",
         body_style
     ))
@@ -794,7 +708,7 @@ def build_journal_paper():
             Paragraph("<b>MAE (bpm)</b>", table_cell_header),
             Paragraph("<b>RMSE (bpm)</b>", table_cell_header),
             Paragraph("<b>Pearson <i>r</i></b>", table_cell_header),
-            Paragraph("<b><i>R</i>²</b>", table_cell_header),
+            Paragraph("<b><i>R</i><sup>2</sup></b>", table_cell_header),
             Paragraph("<b>Artifact Gating (%)</b>", table_cell_header),
             Paragraph("<b>Latency (s)</b>", table_cell_header)
         ],
@@ -879,14 +793,14 @@ def build_journal_paper():
         body_style
     ))
 
-    # Figure 3: Correlation & Bland-Altman
+    # Figure 3: Correlation & Bland-Altman (Numbered as Fig. 5)
     fig3_path = os.path.join(FIGURES_DIR, "fig3_validation.png")
     if os.path.exists(fig3_path):
         story.append(KeepTogether([
             Image(fig3_path, width=printable_w, height=printable_w * (3.2 / 7.2)),
             Paragraph(
                 "<b>Fig. 5.</b> Clinical agreement evaluation between RespiraSense AI estimates and calibrated gold-standard spirometry across 1,200 epochs. "
-                "(a) Linear regression correlation scatter plot demonstrating exceptional linear concordance (<i>y</i> = 0.992<i>x</i> + 0.12, <i>R</i>² = 0.984, MAE = 0.42 bpm). "
+                "(a) Linear regression correlation scatter plot demonstrating exceptional linear concordance (<i>y</i> = 0.992<i>x</i> + 0.12, <i>R</i><sup>2</sup> = 0.984, MAE = 0.42 bpm). "
                 "(b) Bland-Altman limits of agreement plot illustrating negligible mean systematic bias (+0.08 bpm) and tight 95% confidence bounds (−0.85 bpm to +1.01 bpm).",
                 fig_caption_style
             )
@@ -1020,8 +934,6 @@ def build_journal_paper():
         body_style
     ))
 
-    story.append(Spacer(1, 8))
-
     # ══════════════════════════════════════════════════════════════════
     # VII. CONCLUSION & FUTURE SCOPE
     # ══════════════════════════════════════════════════════════════════
@@ -1044,8 +956,6 @@ def build_journal_paper():
         body_style
     ))
 
-    story.append(Spacer(1, 8))
-
     # ══════════════════════════════════════════════════════════════════
     # ACKNOWLEDGMENT
     # ══════════════════════════════════════════════════════════════════
@@ -1056,8 +966,6 @@ def build_journal_paper():
         "and continued encouragement throughout the development and formal validation of the RespiraSense AI project.",
         body_style
     ))
-
-    story.append(Spacer(1, 8))
 
     # ══════════════════════════════════════════════════════════════════
     # REFERENCES
@@ -1095,7 +1003,6 @@ def build_journal_paper():
     with open(OUTPUT_PDF, "rb") as f:
         checksum = hashlib.sha256(f.read()).hexdigest()
 
-    # Also copy to root directory for easy access
     try:
         import shutil
         shutil.copyfile(OUTPUT_PDF, ROOT_OUTPUT_PDF)
@@ -1107,13 +1014,6 @@ def build_journal_paper():
     print(f"Root Copy: {ROOT_OUTPUT_PDF}")
     print(f"Size: {file_size:,} bytes")
     print(f"SHA-256: {checksum}")
-
-    return {
-        "file_path": OUTPUT_PDF,
-        "root_file_path": ROOT_OUTPUT_PDF,
-        "file_size_bytes": file_size,
-        "checksum_sha256": checksum
-    }
 
 
 if __name__ == "__main__":

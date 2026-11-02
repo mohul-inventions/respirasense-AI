@@ -1,5 +1,5 @@
 """
-RespiraSense AI — Publication Figures Generator for Journal Paper
+RespiraSense AI — Publication Figures & Equations Generator
 Author: C R Mohul Ram
 Department of Computer Science and Engineering, Amrita School of Computing, Amrita Vishwa Vidyapeetham, Nagercoil, India
 """
@@ -14,9 +14,12 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
+from PIL import Image
 
 FIGURES_DIR = os.path.join(os.path.dirname(__file__), "figures")
+EQ_DIR = os.path.join(FIGURES_DIR, "equations")
 os.makedirs(FIGURES_DIR, exist_ok=True)
+os.makedirs(EQ_DIR, exist_ok=True)
 
 # Publication styling settings
 plt.rcParams.update({
@@ -37,82 +40,92 @@ plt.rcParams.update({
 
 
 def generate_figure_1_architecture():
-    """Generates Figure 1: Comprehensive System Architecture & Signal Processing Pipeline Diagram."""
-    fig, ax = plt.subplots(figsize=(7.2, 3.4), dpi=300)
-    ax.set_xlim(0, 10)
-    ax.set_ylim(0, 5)
-    ax.axis("off")
+    """Generates Figure 1: Comprehensive System Architecture & Signal Processing Pipeline Diagram without overlaps."""
+    fig, ax = plt.subplots(figsize=(8.2, 4.4), dpi=300)
+    ax.set_xlim(0, 10.2)
+    ax.set_ylim(0, 4.8)
+    ax.axis('off')
 
-    # Colors
-    c_blue = "#1E40AF"
-    c_teal = "#0F766E"
-    c_slate = "#334155"
-    c_amber = "#B45309"
-    c_card = "#F8FAFC"
-    c_stroke = "#64748B"
+    # Title
+    ax.text(5.1, 4.55, 'RespiraSense AI: End-to-End Multimodal Respiratory Processing Architecture',
+            ha='center', va='center', fontsize=11, fontweight='bold', color='#0F172A', fontfamily='serif')
 
-    # Box drawer helper
-    def draw_box(x, y, w, h, title, subtitle="", color=c_blue, bg=c_card):
-        rect = patches.FancyBboxPatch(
-            (x, y), w, h, boxstyle="round,pad=0.08,rounding_size=0.12",
-            facecolor=bg, edgecolor=color, linewidth=1.2, zorder=2
-        )
+    def draw_card(x, y, w, h, title, items, header_bg, body_bg='#F8FAFC'):
+        rect = patches.FancyBboxPatch((x, y), w, h, boxstyle='round,pad=0.04,rounding_size=0.12',
+                                      facecolor=body_bg, edgecolor='#CBD5E1', lw=1.0, zorder=2)
         ax.add_patch(rect)
-        ax.text(x + w/2, y + h*0.62, title, ha="center", va="center",
-                fontsize=7.8, fontweight="bold", color="#0F172A", zorder=3)
-        if subtitle:
-            ax.text(x + w/2, y + h*0.28, subtitle, ha="center", va="center",
-                    fontsize=6.2, color="#475569", zorder=3, style="italic")
+        header_h = 0.36
+        h_rect = patches.FancyBboxPatch((x, y + h - header_h), w, header_h,
+                                        boxstyle='round,pad=0.04,rounding_size=0.10',
+                                        facecolor=header_bg, edgecolor=header_bg, lw=1.0, zorder=3)
+        ax.add_patch(h_rect)
+        ax.text(x + w/2, y + h - header_h/2, title, ha='center', va='center',
+                fontsize=8.0, fontweight='bold', color='white', zorder=4, fontfamily='serif')
+        line_y = y + h - header_h - 0.22
+        for item in items:
+            ax.text(x + 0.12, line_y, f'• {item}', ha='left', va='center',
+                    fontsize=6.8, color='#334155', zorder=4, fontfamily='serif')
+            line_y -= 0.25
 
-    def draw_arrow(x1, y1, x2, y2, label=""):
-        ax.annotate(
-            "", xy=(x2, y2), xytext=(x1, y1),
-            arrowprops=dict(arrowstyle="-|>", color="#1E293B", lw=1.2, mutation_scale=10),
-            zorder=4
-        )
+    def draw_pill_arrow(x1, y1, x2, y2, label=''):
+        ax.annotate('', xy=(x2, y2), xytext=(x1, y1),
+                    arrowprops=dict(arrowstyle='-|>', color='#1E293B', lw=1.4, mutation_scale=11),
+                    zorder=5)
         if label:
-            ax.text((x1+x2)/2, (y1+y2)/2 + 0.12, label, ha="center", va="bottom",
-                    fontsize=5.8, color="#0F172A", fontweight="bold", zorder=5)
+            mx, my = (x1 + x2)/2, (y1 + y2)/2
+            ax.text(mx, my, label, ha='center', va='center', fontsize=6.2, fontweight='bold',
+                    color='#0F172A', zorder=6, fontfamily='serif',
+                    bbox=dict(boxstyle='round,pad=0.25', facecolor='white', edgecolor='#94A3B8', lw=0.8))
 
-    # Title Banner
-    ax.text(5.0, 4.75, "RespiraSense AI: End-to-End Multimodal Respiratory Processing Architecture",
-            ha="center", va="center", fontsize=9.2, fontweight="bold", color="#0F172A")
+    # Stage 1
+    draw_card(0.4, 2.5, 2.7, 1.6, '1. SENSOR INGESTION',
+              ['Smartphone Accelerometer (50 Hz)', 'Acoustic Microphone (16 kHz)', 'Phyphox WebSocket Protocol', 'Coordinate Normalization'],
+              '#1E40AF')
 
-    # Stage 1: Sensor Ingestion
-    draw_box(0.3, 2.7, 1.8, 1.3, "1. SENSOR INGESTION", "Smartphone Accelerometer (50 Hz)\nAcoustic Microphone (16 kHz)\nPhyphox WebSocket Ingestion", c_blue)
+    # Stage 2
+    draw_card(3.8, 2.5, 2.7, 1.6, '2. PREPROCESSING',
+              ['Zero-Phase 4th-Order Bandpass', '(0.10 - 0.50 Hz Forward-Backward)', 'Dynamic Audio Noise Gate (-42 dBFS)', '2.0-Second Lookback Hysteresis'],
+              '#0F766E')
 
-    # Stage 2: Signal Preprocessing
-    draw_box(2.6, 2.7, 1.9, 1.3, "2. PREPROCESSING", "Dual-Stage 4th-Order Bandpass\n(0.1 - 0.5 Hz Zero-Phase Filter)\nDynamic Audio Noise Gate (-42 dB)", c_teal)
+    # Stage 3
+    draw_card(7.1, 2.5, 2.7, 1.6, '3. SQI & MOTION GATING',
+              ['Composite SQI (Kurtosis/Skewness)', 'Acceptance Threshold (SQI >= 0.70)', 'Dynamic RMS Motion Gating', 'Cutoff Boundary (< 0.40 m/s²)'],
+              '#B45309')
 
-    # Stage 3: Quality & Artifact Gating
-    draw_box(5.0, 2.7, 2.0, 1.3, "3. SQI & MOTION GATING", "Signal Quality Index (SQI >= 0.70)\nKurtosis & Skewness Check\nDynamic RMS Motion Gating (< 0.40)", c_amber)
+    # Arrows Row 1
+    draw_pill_arrow(3.1, 3.3, 3.8, 3.3, 'Raw Stream')
+    draw_pill_arrow(6.5, 3.3, 7.1, 3.3, 'Filtered')
 
-    # Stage 4: Multi-Method Respiratory Estimation
-    draw_box(7.5, 2.7, 2.2, 1.3, "4. VITALDSP ENSEMBLE", "Welch PSD Spectral Estimation\nTime-Domain Autocorrelation\nPeak Detection & FFT Tracking", c_slate)
+    # Stage 4
+    draw_card(7.1, 0.4, 2.7, 1.6, '4. VITALDSP ENSEMBLE',
+              ['Welch PSD Spectral Estimation', 'Time-Domain Autocorrelation', 'Adaptive Peak Prominence', 'FFT Spectral Centroid Tracking'],
+              '#047857')
 
-    # Arrows for top row
-    draw_arrow(2.1, 3.35, 2.6, 3.35, "Raw Stream")
-    draw_arrow(4.5, 3.35, 5.0, 3.35, "Cleaned")
-    draw_arrow(7.0, 3.35, 7.5, 3.35, "SQI Verified")
+    # Arrow down from Stage 3 to Stage 4
+    draw_pill_arrow(8.45, 2.5, 8.45, 2.0, 'SQI Verified')
 
-    # Lower Row - Stage 5 & Stage 6
-    draw_arrow(8.6, 2.7, 8.6, 1.8, "Candidates")
+    # Stage 5
+    draw_card(3.8, 0.4, 2.7, 1.6, '5. ADAPTIVE FUSION',
+              ['Dynamic Reliability Weighting', 'Confidence-Weighted Kalman/Bayes', 'Motion Artifact Gating State', 'Cross-Modal Discrepancy Check'],
+              '#4338CA')
 
-    # Stage 5: Adaptive Sensor Fusion Engine
-    draw_box(6.2, 0.4, 3.5, 1.4, "5. ADAPTIVE FUSION ENGINE", "Dynamic Confidence-Weighted Kalman/Bayesian Fusion\nMulti-Modal Reliability Gating (Motion + SQI)\nDiscrepancy Resolution & Drift Correction", c_blue, bg="#EFF6FF")
+    # Arrow left from Stage 4 to Stage 5
+    draw_pill_arrow(7.1, 1.2, 6.5, 1.2, 'Candidates')
 
-    draw_arrow(6.2, 1.1, 4.8, 1.1, "Fused Rate")
+    # Stage 6
+    draw_card(0.4, 0.4, 2.7, 1.6, '6. PERSISTENCE & TELEMETRY',
+              ['Thread-Safe SQLite WAL Storage', '7-Day Personalized Baselines', 'Automated Hospital PDF Reports', 'Audit Trail & Checksum Security'],
+              '#334155')
 
-    # Stage 6: Persistence & Clinical Telemetry
-    draw_box(1.5, 0.4, 3.3, 1.4, "6. CLINICAL PERSISTENCE & TELEMETRY", "SQLite Medical Storage (Thread-Safe WAL)\n7-Day Personalized Baseline Statistics\nAutomated PDF Audit Reports & Hospital Export", c_teal, bg="#F0FDFA")
+    # Arrow left from Stage 5 to Stage 6
+    draw_pill_arrow(3.8, 1.2, 3.1, 1.2, 'Fused Rate')
 
-    # Final feedback / feedback loops
-    ax.annotate(
-        "", xy=(1.2, 2.7), xytext=(2.5, 1.8),
-        arrowprops=dict(arrowstyle="->", color="#94A3B8", lw=0.9, ls="--", mutation_scale=8),
-        zorder=1
-    )
-    ax.text(1.7, 2.1, "Adaptive Calibration", fontsize=5.8, color="#64748B", style="italic")
+    # Feedback arrow Stage 6 to Stage 2
+    ax.annotate('', xy=(3.8, 2.8), xytext=(3.1, 1.8),
+                arrowprops=dict(arrowstyle='->', color='#64748B', lw=1.0, ls='--', mutation_scale=9),
+                zorder=1)
+    ax.text(3.3, 2.25, 'Calibration\nFeedback', ha='center', va='center', fontsize=5.8, color='#475569',
+            fontstyle='italic', fontfamily='serif')
 
     plt.tight_layout()
     out_path = os.path.join(FIGURES_DIR, "fig1_architecture.png")
@@ -125,28 +138,19 @@ def generate_figure_2_waveforms():
     """Generates Figure 2: Physiological Sensor Waveforms, Bandpass Filtering, and Excursion Peak Tracking."""
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(7.0, 3.8), dpi=300, sharex=True)
 
-    # Time axis: 30 seconds of breathing at 15 bpm (0.25 Hz)
     fs = 50.0
     t = np.linspace(0, 30, int(30 * fs), endpoint=False)
-    
-    # Respiratory carrier: 0.25 Hz sinusoid + slight harmonic
     resp_clean = 0.35 * np.sin(2 * np.pi * 0.25 * t) + 0.08 * np.sin(2 * np.pi * 0.50 * t)
-    # Cardiac SCG interference: 1.2 Hz pulses
     cardiac = 0.12 * np.sin(2 * np.pi * 1.2 * t) * (np.sin(2 * np.pi * 0.25 * t) > -0.5)
-    # Sensor noise
     noise = np.random.normal(0, 0.06, len(t))
-    # Motion burst between 18s and 22s
     motion_burst = np.zeros_like(t)
     motion_idx = (t >= 18) & (t <= 22)
     motion_burst[motion_idx] = 1.1 * np.sin(2 * np.pi * 3.5 * t[motion_idx]) + np.random.normal(0, 0.2, np.sum(motion_idx))
 
     raw_accel = resp_clean + cardiac + noise + motion_burst
-
-    # Bandpass filtered (simulated 4th-order zero-phase 0.1-0.5 Hz)
     filtered = resp_clean + 0.03 * noise
-    filtered[motion_idx] *= 1.8  # residual motion transient
+    filtered[motion_idx] *= 1.8
 
-    # Panel (a): Raw Accelerometer Signal
     ax1.plot(t, raw_accel, color="#475569", lw=0.9, label="Raw Triaxial SCG (m/s²)")
     ax1.axvspan(18, 22, color="#FEE2E2", alpha=0.6, label="Induced Motion Artifact")
     ax1.set_ylabel("Accel (m/s²)", fontsize=7.5)
@@ -154,9 +158,7 @@ def generate_figure_2_waveforms():
     ax1.grid(True, alpha=0.3)
     ax1.legend(loc="upper right", framealpha=0.9, fontsize=6.8)
 
-    # Panel (b): Filtered Respiratory Excursion & Peak Detection
-    ax2.plot(t, filtered, color="#1E40AF", lw=1.3, label="Zero-Phase 4th-Order Bandpass (0.1–0.5 Hz)")
-    # Find inhalation peaks
+    ax2.plot(t, filtered, color="#1E40AF", lw=1.3, label="Zero-Phase 4th-Order Bandpass (0.10–0.50 Hz)")
     from scipy.signal import find_peaks
     peaks, _ = find_peaks(filtered, distance=int(fs * 2.8), prominence=0.15)
     valid_peaks = [p for p in peaks if not (18 <= t[p] <= 22)]
@@ -170,10 +172,8 @@ def generate_figure_2_waveforms():
     ax2.grid(True, alpha=0.3)
     ax2.legend(loc="upper right", framealpha=0.9, fontsize=6.8)
 
-    # Panel (c): Acoustic Decibel Envelope & Dynamic Noise Gating
-    # Ambient sound dBFS: quiet breathing around -48 dBFS, ambient speech spike at 18-22s
     dbfs = -52.0 + 6.0 * (resp_clean + 0.35) + np.random.normal(0, 1.2, len(t))
-    dbfs[motion_idx] += 26.0  # speech burst
+    dbfs[motion_idx] += 26.0
     threshold = -42.0
 
     ax3.plot(t, dbfs, color="#0D9488", lw=1.1, label="Ambient Audio Envelope (dBFS)")
@@ -198,22 +198,17 @@ def generate_figure_3_validation():
 
     np.random.seed(42)
     n_epochs = 1200
-    # True physiological respiratory rates: 8 to 32 bpm (covering bradypnea, eupnea, tachypnea)
     true_rr = np.random.uniform(8.0, 32.0, n_epochs)
-    # Estimate has very slight noise, normal distribution
     noise = np.random.normal(0.08, 0.45, n_epochs)
     est_rr = true_rr + noise
 
-    # Subplot 1: Correlation Scatter Plot
     ax1.scatter(true_rr, est_rr, alpha=0.35, color="#1E40AF", s=14, edgecolors="none", label="Epoch Estimates (N=1,200)")
     ax1.plot([6, 34], [6, 34], color="#DC2626", ls="--", lw=1.2, label="Identity Line (y = x)")
 
-    # Linear regression
     coeffs = np.polyfit(true_rr, est_rr, 1)
     poly = np.poly1d(coeffs)
     r = np.corrcoef(true_rr, est_rr)[0, 1]
     mae = np.mean(np.abs(est_rr - true_rr))
-    rmse = np.sqrt(np.mean((est_rr - true_rr)**2))
 
     ax1.plot(np.sort(true_rr), poly(np.sort(true_rr)), color="#0D9488", lw=1.2,
              label=f"Fit: y = {coeffs[0]:.3f}x + {coeffs[1]:.2f}\nR² = {r**2:.3f}, MAE = {mae:.2f}")
@@ -226,7 +221,6 @@ def generate_figure_3_validation():
     ax1.grid(True, alpha=0.3)
     ax1.legend(loc="upper left", framealpha=0.9, fontsize=6.8)
 
-    # Subplot 2: Bland-Altman Plot
     mean_meas = (true_rr + est_rr) / 2.0
     diff = est_rr - true_rr
     mean_diff = np.mean(diff)
@@ -260,25 +254,19 @@ def generate_figure_4_sqi_motion():
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7.0, 3.2), dpi=300, sharex=True)
 
     np.random.seed(101)
-    time_min = np.linspace(0, 10, 300)  # 10 minutes observation
+    time_min = np.linspace(0, 10, 300)
 
-    # Dynamic RMS motion: baseline < 0.05 m/s2, talking at 3-4 min, coughing at 6 min, walking at 8-9 min
     rms = 0.03 + np.random.exponential(0.012, len(time_min))
-    # Speech artifact (0.15 - 0.25 m/s2)
     speech_mask = (time_min >= 2.8) & (time_min <= 3.8)
     rms[speech_mask] += np.random.uniform(0.12, 0.24, np.sum(speech_mask))
-    # Cough transient
     cough_mask = (time_min >= 5.8) & (time_min <= 6.2)
     rms[cough_mask] += np.random.uniform(0.45, 0.75, np.sum(cough_mask))
-    # Walking / postural transition (> 0.40 m/s2)
     walk_mask = (time_min >= 7.8) & (time_min <= 8.8)
     rms[walk_mask] += np.random.uniform(0.38, 0.85, np.sum(walk_mask))
 
-    # Signal Quality Index (SQI): inversely related to RMS and spectral entropy
     sqi = 0.90 - 0.75 * (rms / np.max(rms)) + np.random.normal(0, 0.03, len(time_min))
     sqi = np.clip(sqi, 0.15, 0.96)
 
-    # Panel 1: Dynamic RMS
     ax1.plot(time_min, rms, color="#334155", lw=1.1, label="Dynamic Acceleration RMS (m/s²)")
     ax1.axhline(0.40, color="#DC2626", ls="--", lw=1.1, label="Motion Gating Threshold (0.40 m/s²)")
     ax1.fill_between(time_min, rms, 0.40, where=(rms >= 0.40), color="#FEE2E2", alpha=0.7, label="Gated Artifact Burst")
@@ -287,7 +275,6 @@ def generate_figure_4_sqi_motion():
     ax1.grid(True, alpha=0.3)
     ax1.legend(loc="upper right", framealpha=0.9, fontsize=6.8)
 
-    # Panel 2: SQI
     ax2.plot(time_min, sqi, color="#0D9488", lw=1.2, label="Signal Quality Index (SQI)")
     ax2.axhline(0.70, color="#B45309", ls="--", lw=1.1, label="Quality Acceptance Cutoff (0.70)")
     ax2.fill_between(time_min, 0, 0.70, color="#FEF3C7", alpha=0.4, label="Low Quality / Gated Epochs")
@@ -309,14 +296,11 @@ def generate_figure_5_crepitation():
     """Generates Figure 5: Exploratory Acoustic Adventitious Sound (Crackle/Crepitation) Analysis vs Sensor Bandwidth."""
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7.2, 3.0), dpi=300)
 
-    # Subplot 1: Frequency Spectrum of Accelerometer vs Acoustic Crackle Band
     freqs = np.linspace(0, 1500, 1500)
-    # Accelerometer bandwidth: drops sharply above 25 Hz (Nyquist of 50 Hz sampling)
     accel_resp = 1.0 / (1.0 + (freqs / 20.0)**8)
-    # Crackle energy distribution: 200 to 1200 Hz
     crackle_band = np.exp(-((freqs - 550) / 220)**2)
 
-    ax1.plot(freqs, accel_resp, color="#DC2626", lw=1.4, label="Accelerometer Sensor Frequency Response\n(fs = 50 Hz, Nyquist = 25 Hz)")
+    ax1.plot(freqs, accel_resp, color="#DC2626", lw=1.4, label="Accelerometer Sensor Response\n(fs = 50 Hz, Nyquist = 25 Hz)")
     ax1.plot(freqs, crackle_band, color="#0D9488", lw=1.4, label="Acoustic Crackle/Crepitation Band\n(200 Hz - 1,200 Hz)")
     ax1.axvline(25.0, color="#94A3B8", ls=":", lw=1.0)
     ax1.axvspan(200, 1200, color="#CCFBF1", alpha=0.4, label="Clinical Crackle Diagnostic Window")
@@ -329,14 +313,10 @@ def generate_figure_5_crepitation():
     ax1.grid(True, alpha=0.3)
     ax1.legend(loc="upper right", framealpha=0.9, fontsize=6.2)
 
-    # Subplot 2: Acoustic Crackle Event Detection Waveform
     fs_audio = 4000
     t_crackle = np.linspace(0, 0.4, int(0.4 * fs_audio))
-    # Simulated fine crackles: short transients (duration ~ 5-15 ms)
-    crackle_sig = 0.08 * np.sin(2 * np.pi * 60 * t_crackle)  # respiratory murmur
-    # Transient 1 at 0.12s (width ~ 10ms at 550 Hz)
+    crackle_sig = 0.08 * np.sin(2 * np.pi * 60 * t_crackle)
     burst1 = np.exp(-((t_crackle - 0.12) / 0.005)**2) * np.sin(2 * np.pi * 580 * (t_crackle - 0.12))
-    # Transient 2 at 0.28s
     burst2 = np.exp(-((t_crackle - 0.28) / 0.006)**2) * np.sin(2 * np.pi * 620 * (t_crackle - 0.28))
     full_audio = crackle_sig + 0.8 * burst1 + 0.7 * burst2 + np.random.normal(0, 0.02, len(t_crackle))
 
@@ -360,13 +340,10 @@ def generate_figure_6_error_distribution():
     """Generates Figure 6: Estimation Error Distribution across Respiratory Regimes and Modalities."""
     fig, ax = plt.subplots(figsize=(7.0, 3.0), dpi=300)
 
-    np.random.seed(77)
-    # Regimes: Bradypnea (<10), Eupnea (12-20), Tachypnea (>24), Motion Artifact
     labels = ["Bradypnea\n(<10 bpm)", "Eupnea\n(12-20 bpm)", "Tachypnea\n(>24 bpm)", "Motion\nArtifacts"]
     x = np.arange(len(labels))
     width = 0.20
 
-    # Absolute errors (mean, std)
     mae_accel = [0.82, 0.48, 1.15, 3.80]
     mae_audio = [1.25, 0.62, 1.45, 4.20]
     mae_simple = [0.74, 0.42, 0.98, 2.95]
@@ -392,6 +369,33 @@ def generate_figure_6_error_distribution():
     print("Saved:", out_path)
 
 
+def generate_equations():
+    """Renders all 10 mathematical equations as publication-quality transparent PNGs."""
+    eqs = [
+        ('eq1', r'$a_{\mathrm{norm}}(t) = \sqrt{a_x(t)^2 + a_y(t)^2 + a_z(t)^2}$', '(1)'),
+        ('eq2', r'$|H(j\omega)|^2 = \frac{1}{1 + (\omega / \omega_c)^{2N}}$', '(2)'),
+        ('eq3', r'$\mathrm{dBFS}(t) = 20 \cdot \log_{10} \left[ \frac{\mathrm{RMS}(x_{\mathrm{audio}}(t))}{A_{\mathrm{max}}} \right]$', '(3)'),
+        ('eq4', r'$\mathrm{SECR} = \frac{\int_{0.10}^{0.50} P(f) \, df}{\int_{0.01}^{5.0} P(f) \, df}$', '(4)'),
+        ('eq5', r'$\mathrm{SQI} = 0.50 \cdot \mathrm{SECR} + 0.30 \cdot e^{-|\gamma_1|} + 0.20 \cdot \frac{1}{1 + |\gamma_2 - 3|}$', '(5)'),
+        ('eq6', r'$\mathrm{RMS}_{\mathrm{motion}} = \sqrt{\frac{1}{M}\sum_{k=1}^M (a(k) - \bar{a})^2}$', '(6)'),
+        ('eq7', r'$w_{\mathrm{accel}} = \mathrm{SQI}_{\mathrm{accel}} \cdot e^{-\frac{\mathrm{RMS}_{\mathrm{motion}}}{0.20}}, \quad w_{\mathrm{audio}} = \mathrm{SQI}_{\mathrm{audio}} \cdot \mathbb{I}(\mathrm{dBFS} < \Gamma_{\mathrm{gate}})$', '(7)'),
+        ('eq8', r'$\hat{r}_{\mathrm{fused}} = \frac{\sum_i w_i \cdot r_i}{\sum_i w_i}$', '(8)'),
+        ('eq9', r'$f_{\mathrm{Nyq, accel}} = \frac{50.0\text{ Hz}}{2} = 25.0\text{ Hz} \quad (f_{\mathrm{Nyq, max}} = 50.0\text{ Hz})$', '(9)'),
+        ('eq10', r'$f_{\mathrm{crackle, min}} \, (200\text{ Hz}) \gg f_{\mathrm{Nyq, accel}} \, (25\text{ Hz})$', '(10)')
+    ]
+
+    for name, eq_str, num_str in eqs:
+        fig = plt.figure(figsize=(6.5, 0.48), dpi=300)
+        fig.patch.set_alpha(0.0)
+        fig.text(0.48, 0.5, eq_str, ha='center', va='center', fontsize=10.5, color='#0F172A')
+        fig.text(0.96, 0.5, num_str, ha='right', va='center', fontsize=9.5, color='#0F172A', fontfamily='serif')
+        p = os.path.join(EQ_DIR, f'{name}.png')
+        plt.savefig(p, transparent=True, dpi=300)
+        plt.close(fig)
+
+    print("All 10 equations rendered as crisp transparent PNGs.")
+
+
 if __name__ == "__main__":
     generate_figure_1_architecture()
     generate_figure_2_waveforms()
@@ -399,4 +403,5 @@ if __name__ == "__main__":
     generate_figure_4_sqi_motion()
     generate_figure_5_crepitation()
     generate_figure_6_error_distribution()
-    print("All 6 publication figures generated successfully.")
+    generate_equations()
+    print("All publication visual assets generated successfully.")
