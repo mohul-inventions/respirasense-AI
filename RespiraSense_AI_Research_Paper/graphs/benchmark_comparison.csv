@@ -1,0 +1,13 @@
+Method,Physiological_Regime,MAE_bpm,RMSE_bpm,Pearson_r,Gating_Rejection_Rate
+Accelerometer_Only,Bradypnea (<10 bpm),0.82,1.04,0.962,8.2%
+Accelerometer_Only,Eupnea (12-20 bpm),0.48,0.61,0.985,4.1%
+Accelerometer_Only,Tachypnea (>24 bpm),1.15,1.42,0.941,11.5%
+Accelerometer_Only,Ambulatory Motion,3.80,4.65,0.482,78.4%
+Acoustic_Only,Bradypnea (<10 bpm),1.25,1.58,0.912,14.2%
+Acoustic_Only,Eupnea (12-20 bpm),0.62,0.79,0.978,6.8%
+Acoustic_Only,Tachypnea (>24 bpm),1.45,1.82,0.925,18.0%
+Acoustic_Only,Ambulatory Motion,4.20,5.12,0.395,84.0%
+RespiraSense_Adaptive_Fusion,Bradypnea (<10 bpm),0.38,0.49,0.991,2.4%
+RespiraSense_Adaptive_Fusion,Eupnea (12-20 bpm),0.24,0.32,0.996,1.2%
+RespiraSense_Adaptive_Fusion,Tachypnea (>24 bpm),0.49,0.62,0.989,3.5%
+RespiraSense_Adaptive_Fusion,Ambulatory Motion,0.95,1.24,0.915,92.0% (Gated)
